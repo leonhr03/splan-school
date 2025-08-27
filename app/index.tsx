@@ -9,9 +9,10 @@ export default function Index() {
         const isLogin = async() => {
             const role = await AsyncStorage.getItem("role")
             if(role === "student") {
-                router.replace("//student/home")
+                router.replace("/student/home")
             }
         }
+        isLogin()
     }, []);
 
     const router = useRouter()

@@ -15,8 +15,12 @@ import { useRouter } from "expo-router";
 export default function HomeStudent() {
     const router = useRouter();
     const [addAlert, setAddAlert] = useState(false);
+    const [deleteAlert, setDeleteAlert] = useState(false);
+    const [subjectToDelete, setSubjectToDelete] = useState<string | null>(null);
+
     const [newSubject, setNewSubject] = useState("");
     const [subjects, setSubjects] = useState<{ subject: string; avr: string }[]>([]);
+    const [avrGesMap, setAvrGesMap] = useState<{ [key: string]: string }>({});
     const [overallAverage, setOverallAverage] = useState<string>("-");
 
     const calculateOverallAverage = (list: { avr: string }[]) => {
@@ -28,6 +32,7 @@ export default function HomeStudent() {
         return (sum / numericAvrs.length).toFixed(2);
     };
 
+    // Laden der gespeicherten Subjects und avrGes
     useEffect(() => {
         const load = async () => {
             try {
@@ -35,7 +40,14 @@ export default function HomeStudent() {
                 if (storedSubjects) {
                     const parsed = JSON.parse(storedSubjects);
                     setSubjects(parsed);
-                    setOverallAverage(calculateOverallAverage(parsed));
+
+                    // Alle avrGes Werte laden
+                    const map: { [key: string]: string } = {};
+                    for (const item of parsed) {
+                        const value = await AsyncStorage.getItem(`${item.subject}/avrGes`);
+                        map[item.subject] = value || "-";
+                    }
+                    setAvrGesMap(map);
                 }
             } catch (e) {
                 console.error("Error loading subjects:", e);
@@ -44,6 +56,14 @@ export default function HomeStudent() {
         load();
     }, []);
 
+    useEffect(() => {
+        const listWithAvrs = subjects.map(s => ({
+            ...s,
+            avr: avrGesMap[s.subject] || "-",
+        }));
+        setOverallAverage(calculateOverallAverage(listWithAvrs));
+    }, [subjects, avrGesMap]);
+
     const addSubject = async (subject: string) => {
         if (!subject.trim()) return;
 
@@ -51,7 +71,9 @@ export default function HomeStudent() {
         try {
             await AsyncStorage.setItem("subjects", JSON.stringify(newSubjectsList));
             setSubjects(newSubjectsList);
-            setOverallAverage(calculateOverallAverage(newSubjectsList));
+
+            setAvrGesMap(prev => ({ ...prev, [subject]: "-" }));
+
             setNewSubject("");
             setAddAlert(false);
         } catch (e) {
@@ -59,26 +81,56 @@ export default function HomeStudent() {
         }
     };
 
-    const renderItem = ({ item }: any) => {
-        return (
-            <TouchableOpacity
-                style={styles.item}
-                onPress={() =>
-                    router.replace({
-                        pathname: "/pagesstudent/exams",
-                        params: { subject: item.subject },
-                    })
-                }
-            >
-                <View style={styles.itemLeft}>
-                    <Text style={styles.buText}>{item.subject}</Text>
-                </View>
-                <View style={styles.itemRight}>
-                    <Text style={styles.buText}>{item.avr}</Text>
-                </View>
-            </TouchableOpacity>
-        );
+    const confirmDeleteSubject = (subject: string) => {
+        setSubjectToDelete(subject);
+        setDeleteAlert(true);
     };
+
+    const deleteSubject = async () => {
+        if (!subjectToDelete) return;
+        try {
+            const newSubjectsList = subjects.filter(s => s.subject !== subjectToDelete);
+            await AsyncStorage.setItem("subjects", JSON.stringify(newSubjectsList));
+            setSubjects(newSubjectsList);
+
+            const newAvrMap = { ...avrGesMap };
+            delete newAvrMap[subjectToDelete];
+            setAvrGesMap(newAvrMap);
+
+            await AsyncStorage.removeItem(`${subjectToDelete}/avrGes`);
+            await AsyncStorage.removeItem(`${subjectToDelete}/exam`);
+            await AsyncStorage.removeItem(`${subjectToDelete}/mund`);
+            await AsyncStorage.removeItem(`${subjectToDelete}/examsAvr`);
+            await AsyncStorage.removeItem(`${subjectToDelete}/mundAvr`);
+            await AsyncStorage.removeItem(`${subjectToDelete}/avrGes`);
+
+
+            setSubjectToDelete(null);
+            setDeleteAlert(false);
+        } catch (e) {
+            console.error("Error deleting subject:", e);
+        }
+    };
+
+    const renderItem = ({ item }: any) => (
+        <TouchableOpacity
+            style={styles.item}
+            onPress={() =>
+                router.replace({
+                    pathname: "/pagesstudent/choose",
+                    params: { subject: item.subject },
+                })
+            }
+            onLongPress={() => confirmDeleteSubject(item.subject)}
+        >
+            <View style={styles.itemLeft}>
+                <Text style={styles.buText}>{item.subject}</Text>
+            </View>
+            <View style={styles.itemRight}>
+                <Text style={styles.buText}>{avrGesMap[item.subject]}</Text>
+            </View>
+        </TouchableOpacity>
+    );
 
     return (
         <SafeAreaView style={styles.container}>
@@ -89,12 +141,14 @@ export default function HomeStudent() {
                 style={styles.list}
                 data={subjects}
                 renderItem={renderItem}
-                keyExtractor={(_, index) => index.toString()}
+                keyExtractor={(item) => item.subject}
             />
+
             <TouchableOpacity style={styles.button} onPress={() => setAddAlert(true)}>
                 <Text style={styles.buText}>+</Text>
             </TouchableOpacity>
 
+            {/* Modal zum Hinzufügen */}
             <Modal transparent animationType="slide" visible={addAlert}>
                 <TouchableOpacity
                     style={styles.sheetOverlay}
@@ -122,6 +176,32 @@ export default function HomeStudent() {
                         </TouchableOpacity>
                     </TouchableOpacity>
                 </TouchableOpacity>
+            </Modal>
+
+            {/* Modal zum Löschen */}
+            <Modal transparent animationType="fade" visible={deleteAlert}>
+                <View style={styles.centeredView}>
+                    <View style={styles.deleteModal}>
+                        <Text style={styles.deleteTitle}>Delete Subject?</Text>
+                        <Text style={styles.deleteText}>
+                            {`Do you really want to delete "${subjectToDelete}"?`}
+                        </Text>
+                        <View style={styles.deleteButtons}>
+                            <TouchableOpacity
+                                style={styles.cancelButton}
+                                onPress={() => setDeleteAlert(false)}
+                            >
+                                <Text style={styles.cancelText}>Cancel</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                                style={styles.deleteButton}
+                                onPress={deleteSubject}
+                            >
+                                <Text style={styles.deleteTextButton}>Delete</Text>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                </View>
             </Modal>
         </SafeAreaView>
     );
@@ -213,4 +293,40 @@ const styles = StyleSheet.create({
     },
     addButtonText: { fontSize: 17, color: "#fff", fontWeight: "600" },
     list: { marginBottom: 80 },
+
+    // Delete Modal
+    centeredView: {
+        flex: 1,
+        justifyContent: "center",
+        alignItems: "center",
+        backgroundColor: "rgba(0,0,0,0.5)",
+    },
+    deleteModal: {
+        backgroundColor: "#111",
+        borderRadius: 15,
+        padding: 20,
+        width: "80%",
+        alignItems: "center",
+    },
+    deleteTitle: { fontSize: 22, fontWeight: "bold", color: "#22c55e", marginBottom: 10 },
+    deleteText: { fontSize: 18, color: "#fff", marginBottom: 20, textAlign: "center" },
+    deleteButtons: { flexDirection: "row", justifyContent: "space-between", width: "100%" },
+    cancelButton: {
+        flex: 1,
+        marginRight: 10,
+        backgroundColor: "#333",
+        padding: 12,
+        borderRadius: 10,
+        alignItems: "center",
+    },
+    deleteButton: {
+        flex: 1,
+        marginLeft: 10,
+        backgroundColor: "#e11d48",
+        padding: 12,
+        borderRadius: 10,
+        alignItems: "center",
+    },
+    cancelText: { color: "#fff", fontSize: 16, fontWeight: "600" },
+    deleteTextButton: { color: "#fff", fontSize: 16, fontWeight: "600" },
 });

@@ -30,6 +30,15 @@ export default function StudentLayout() {
                                  <Ionicons name={focused ? 'home' : 'home-outline'} size={size} color={color} />
                              ),
                          }}/>
+
+            <Tabs.Screen name="dates"
+                         options={{
+                             tabBarLabel: 'Termine',
+                             tabBarIcon: ({ color, size, focused }) => (
+                                 <Ionicons name={focused ? 'calendar' : 'calendar-outline'} size={size} color={color} />
+                             ),
+                         }}/>
+
             <Tabs.Screen name="account"
                          options={{
                              tabBarLabel: 'Konto',
