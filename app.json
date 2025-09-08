@@ -14,7 +14,7 @@
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "backgroundColor": "#22e55c"
       },
       "edgeToEdgeEnabled": true,
       "package": "com.leonhuber.splanschool"
@@ -32,7 +32,7 @@
           "image": "./assets/images/splash-icon.png",
           "imageWidth": 200,
           "resizeMode": "contain",
-          "backgroundColor": "#ffffff"
+          "backgroundColor": "#22e55c"
         }
       ]
     ],
@@ -44,6 +44,12 @@
       "eas": {
         "projectId": "c750c8bd-79e7-4e47-bbd2-0bcf3cda9e29"
       }
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/c750c8bd-79e7-4e47-bbd2-0bcf3cda9e29"
     }
   }
 }

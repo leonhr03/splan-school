@@ -26,6 +26,8 @@ export default function ChooseGrade() {
     const [showExamModal, setShowExamModal] = useState(false);
     const [deleteExamAlert, setDeleteExamAlert] = useState(false)
     const [examToDelete, setExamToDelete] = useState<string | null>(null);
+    const [weightExam, setWeightExam] = useState(50)
+    const [editExamAlert, setEditExamAlert] = useState(false)
 
     // Mündlich
     const [mund, setMund] = useState<{ mund: string; grade: string }[]>([]);
@@ -35,6 +37,8 @@ export default function ChooseGrade() {
     const [showMundModal, setShowMundModal] = useState(false);
     const [deleteMundAlert, setDeleteMundAlert] = useState(false)
     const [mundToDelete, setMundToDelete] = useState<string | null>(null);
+    const [weightMund, setWeightMund] = useState(50)
+    const [editMundAlert, setEditMundAlert] = useState(false)
 
     // Gesamt
     const [avrGes, setAvrGes] = useState(AsyncStorage.getItem(`${subject}/avrGes`));
@@ -44,6 +48,12 @@ export default function ChooseGrade() {
         const load = async () => {
             const storedExams = await AsyncStorage.getItem(`${subject}/exam`);
             const storedMund = await AsyncStorage.getItem(`${subject}/mund`);
+
+            const storedWeightExam: any = await AsyncStorage.getItem(`${subject}/weightExam`) ?? 50
+            const storedWeightMund: any = await AsyncStorage.getItem(`${subject}/weightMund`) ?? 50
+
+            setWeightExam(parseFloat(storedWeightExam))
+            setWeightMund(parseFloat(storedWeightMund))
 
             if (storedExams) {
                 const list = JSON.parse(storedExams);
@@ -98,9 +108,18 @@ export default function ChooseGrade() {
         const ex = parseFloat(examVal?.toString() ?? "");
         const mu = parseFloat(mundVal?.toString() ?? "");
 
+        const storedWeightExam = await AsyncStorage.getItem(`${subject}/weightExam`);
+        const storedWeightMund = await AsyncStorage.getItem(`${subject}/weightMund`);
+
+        // Fallback falls noch nichts gespeichert ist → 50/50
+        const weightExam = parseFloat(storedWeightExam ?? "50");
+        const weightMund = parseFloat(storedWeightMund ?? "50");
+
         let ges = "-";
+
         if (!isNaN(ex) && !isNaN(mu)) {
-            ges = ((ex + mu) / 2).toFixed(1);
+            const totalWeight = weightExam + weightMund;
+            ges = ((ex * weightExam + mu * weightMund) / totalWeight).toFixed(1);
         } else if (!isNaN(ex)) {
             ges = ex.toFixed(1);
         } else if (!isNaN(mu)) {
@@ -187,7 +206,7 @@ export default function ChooseGrade() {
                 {/* Schriftlich */}
                 <View style={styles.card}>
                     <Text style={styles.text}>Schriftlich {"Ø "}{avrExams}</Text>
-                    <TouchableOpacity style={styles.editButton} onPress={() => setCommingSoon(true)}>
+                    <TouchableOpacity style={styles.editButton} onPress={() => setEditExamAlert(true)}>
                         <Ionicons name="pencil" size={20} color="#fff" />
                     </TouchableOpacity>
 
@@ -211,7 +230,7 @@ export default function ChooseGrade() {
                 {/* Mündlich */}
                 <View style={styles.card}>
                     <Text style={styles.text}>Mündlich {"Ø "}{avrMund}</Text>
-                    <TouchableOpacity style={styles.editButton} onPress={() => setCommingSoon(true)}>
+                    <TouchableOpacity style={styles.editButton} onPress={() => setEditMundAlert(true)}>
                         <Ionicons name="pencil" size={20} color="#fff" />
                     </TouchableOpacity>
 
@@ -339,13 +358,59 @@ export default function ChooseGrade() {
                 </View>
             </Modal>
 
-            <Modal transparent animationType="fade" visible={commingSoon}>
+            <Modal transparent animationType="fade" visible={editExamAlert}>
                 <View style={styles.centeredView}>
                     <View style={styles.deleteModal}>
-                        <Text style={styles.deleteTitle}>Comming soon</Text>
-                        <Text style={styles.deleteText}>This function comming soon</Text>
-                        <TouchableOpacity style={styles.cancelButton}onPress={() => setCommingSoon(false)} >
-                            <Text style={styles.cancelText}>Close</Text>
+                        <Text style={styles.deleteTitle}>Edit Exam</Text>
+                        <View style={styles.editView}>
+                            <TouchableOpacity style={styles.addButton} onPress={() => setWeightExam(weightExam - 5)}>
+                                <Text style={styles.addButtonText}>-</Text>
+                            </TouchableOpacity>
+                            <Text style={styles.weightText}>{weightExam}{"%"}</Text>
+                            <TouchableOpacity style={styles.addButton} onPress={() => setWeightExam(weightExam + 5)}>
+                                <Text style={styles.addButtonText}>+</Text>
+                            </TouchableOpacity>
+                        </View>
+
+                        <TouchableOpacity
+                            style={styles.saveButton}
+                            onPress={async () => {
+                                await AsyncStorage.setItem(`${subject}/weightExam`, weightExam.toString());
+                                setEditExamAlert(false);
+                                // neu berechnen mit aktuellen Ø
+                                calcGes(avrExams, avrMund);
+                            }}
+                        >
+                            <Text style={styles.saveButtonText}>finish</Text>
+                        </TouchableOpacity>
+                    </View>
+                </View>
+            </Modal>
+
+            <Modal transparent animationType="fade" visible={editMundAlert}>
+                <View style={styles.centeredView}>
+                    <View style={styles.deleteModal}>
+                        <Text style={styles.deleteTitle}>Edit Oral</Text>
+                        <View style={styles.editView}>
+                            <TouchableOpacity style={styles.addButton} onPress={() => setWeightMund(weightMund - 5)}>
+                                <Text style={styles.addButtonText}>-</Text>
+                            </TouchableOpacity>
+                            <Text style={styles.weightText}>{weightMund}{"%"}</Text>
+                            <TouchableOpacity style={styles.addButton} onPress={() => setWeightMund(weightMund + 5)}>
+                                <Text style={styles.addButtonText}>+</Text>
+                            </TouchableOpacity>
+                        </View>
+
+                        <TouchableOpacity
+                            style={styles.saveButton}
+                            onPress={async () => {
+                                await AsyncStorage.setItem(`${subject}/weightMund`, weightMund.toString());
+                                setEditMundAlert(false);
+                                // neu berechnen mit aktuellen Ø
+                                calcGes(avrExams, avrMund);
+                            }}
+                        >
+                            <Text style={styles.saveButtonText}>finish</Text>
                         </TouchableOpacity>
                     </View>
                 </View>
@@ -439,8 +504,9 @@ const styles = StyleSheet.create({
         backgroundColor: "#111",
         borderRadius: 15,
         padding: 20,
-        width: "80%",
+        width: "95%",
         alignItems: "center",
+
     },
     deleteTitle: { fontSize: 22, fontWeight: "bold", color: "#22c55e", marginBottom: 10 },
     deleteText: { fontSize: 18, color: "#fff", marginBottom: 20, textAlign: "center" },
@@ -463,4 +529,16 @@ const styles = StyleSheet.create({
     },
     cancelText: { color: "#fff", fontSize: 16, fontWeight: "600" },
     deleteTextButton: { color: "#fff", fontSize: 16, fontWeight: "600" },
+
+    editView: {
+        flexDirection: "row",
+        justifyContent: "center",
+        alignItems: "center",
+    },
+
+    weightText: {
+       marginHorizontal: 30,
+       color: "#ffffff",
+       fontSize: 24,
+    },
 });

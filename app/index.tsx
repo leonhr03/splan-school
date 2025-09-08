@@ -4,28 +4,34 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import {useRouter} from "expo-router";
 
 export default function Index() {
+    const router = useRouter();
+    const [step, setStep] = useState<number | null>(null); // null = noch prüfen
 
     useEffect(() => {
-        const isLogin = async() => {
-            const role = await AsyncStorage.getItem("role")
-            if(role === "student") {
-                router.replace("/student/home")
+        const checkLogin = async () => {
+            const role = await AsyncStorage.getItem("role");
+            if (role === "student") {
+                router.replace("/student/home");
+            } else {
+                // kein Login → bei Step 1 starten
+                setStep(1);
             }
-        }
-        isLogin()
+        };
+        checkLogin();
     }, []);
 
-    const router = useRouter()
-    const [step, setStep] = useState(1)
+    const student = async () => {
+        await AsyncStorage.setItem("role", "student");
+        router.replace("/student/home");
+    };
 
-    const student = async() => {
-        const role = await AsyncStorage.setItem("role", "student")
-        router.replace("/student/home")
+    // während der Prüfung nichts anzeigen
+    if (step === null) {
+        return <SafeAreaView style={styles.container} />;
     }
 
     return (
         <SafeAreaView style={styles.container}>
-
             {/* Info Page 1 */}
             <Modal animationType="slide" visible={step === 1}>
                 <SafeAreaView style={styles.page}>
@@ -33,10 +39,7 @@ export default function Index() {
                     <Text style={styles.text}>
                         Splan helps you organize your schoolday.
                     </Text>
-                    <TouchableOpacity
-                        style={styles.button}
-                        onPress={() => setStep(2)}
-                    >
+                    <TouchableOpacity style={styles.button} onPress={() => setStep(2)}>
                         <Text style={styles.buText}>Next</Text>
                     </TouchableOpacity>
                 </SafeAreaView>
@@ -49,10 +52,7 @@ export default function Index() {
                     <Text style={styles.text}>
                         Students can track subjects, exams and dates.
                     </Text>
-                    <TouchableOpacity
-                        style={styles.button}
-                        onPress={() => setStep(3)}
-                    >
+                    <TouchableOpacity style={styles.button} onPress={() => setStep(3)}>
                         <Text style={styles.buText}>Next</Text>
                     </TouchableOpacity>
                 </SafeAreaView>
@@ -65,10 +65,7 @@ export default function Index() {
                     <Text style={styles.text}>
                         Teachers can manage classes, students and exams.
                     </Text>
-                    <TouchableOpacity
-                        style={styles.button}
-                        onPress={() => setStep(4)}
-                    >
+                    <TouchableOpacity style={styles.button} onPress={() => setStep(4)}>
                         <Text style={styles.buText}>Next</Text>
                     </TouchableOpacity>
                 </SafeAreaView>
@@ -89,18 +86,15 @@ export default function Index() {
                     </View>
                 </SafeAreaView>
             </Modal>
-
         </SafeAreaView>
-    )
+    );
 }
 
 const styles = StyleSheet.create({
-
     container: {
         flex: 1,
         backgroundColor: "#0a0a0a",
     },
-
     page: {
         flex: 1,
         backgroundColor: "#0a0a0a",
@@ -108,7 +102,6 @@ const styles = StyleSheet.create({
         alignItems: "center",
         padding: 24,
     },
-
     heading: {
         fontSize: 35,
         fontWeight: "bold",
@@ -116,7 +109,6 @@ const styles = StyleSheet.create({
         marginBottom: 16,
         textAlign: "center",
     },
-
     text: {
         marginTop: 10,
         fontSize: 25,
@@ -124,14 +116,12 @@ const styles = StyleSheet.create({
         textAlign: "center",
         lineHeight: 24,
     },
-
     buText: {
         fontSize: 20,
         color: "#ffffff",
         fontWeight: "600",
         textAlign: "center",
     },
-
     button: {
         marginTop: 60,
         backgroundColor: "#22c55e",
@@ -143,12 +133,10 @@ const styles = StyleSheet.create({
         shadowRadius: 6,
         elevation: 6,
     },
-
     buttonContainer: {
         flexDirection: "row",
         marginTop: 30,
     },
-
     chooseButton: {
         backgroundColor: "#3b3b3b",
         marginHorizontal: 8,
@@ -158,4 +146,4 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderColor: "#4ade80",
     },
-})
+});
