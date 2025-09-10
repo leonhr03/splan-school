@@ -11,12 +11,11 @@ import {
 } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import {Ionicons} from "@expo/vector-icons";
+import { Ionicons } from "@expo/vector-icons";
 
 export default function ChooseGrade() {
     const router = useRouter();
     const { subject } = useLocalSearchParams();
-    const [commingSoon, setCommingSoon] = useState(false)
 
     // Schriftlich
     const [exams, setExams] = useState<{ exam: string; grade: string }[]>([]);
@@ -24,10 +23,10 @@ export default function ChooseGrade() {
     const [newExam, setNewExam] = useState("");
     const [newExamGrade, setNewExamGrade] = useState("");
     const [showExamModal, setShowExamModal] = useState(false);
-    const [deleteExamAlert, setDeleteExamAlert] = useState(false)
+    const [deleteExamAlert, setDeleteExamAlert] = useState(false);
     const [examToDelete, setExamToDelete] = useState<string | null>(null);
-    const [weightExam, setWeightExam] = useState(50)
-    const [editExamAlert, setEditExamAlert] = useState(false)
+    const [weightExam, setWeightExam] = useState(50);
+    const [editExamAlert, setEditExamAlert] = useState(false);
 
     // Mündlich
     const [mund, setMund] = useState<{ mund: string; grade: string }[]>([]);
@@ -35,13 +34,13 @@ export default function ChooseGrade() {
     const [newMund, setNewMund] = useState("");
     const [newMundGrade, setNewMundGrade] = useState("");
     const [showMundModal, setShowMundModal] = useState(false);
-    const [deleteMundAlert, setDeleteMundAlert] = useState(false)
+    const [deleteMundAlert, setDeleteMundAlert] = useState(false);
     const [mundToDelete, setMundToDelete] = useState<string | null>(null);
-    const [weightMund, setWeightMund] = useState(50)
-    const [editMundAlert, setEditMundAlert] = useState(false)
+    const [weightMund, setWeightMund] = useState(50);
+    const [editMundAlert, setEditMundAlert] = useState(false);
 
     // Gesamt
-    const [avrGes, setAvrGes] = useState(AsyncStorage.getItem(`${subject}/avrGes`));
+    const [avrGes, setAvrGes] = useState("-");
 
     // Laden
     useEffect(() => {
@@ -49,11 +48,11 @@ export default function ChooseGrade() {
             const storedExams = await AsyncStorage.getItem(`${subject}/exam`);
             const storedMund = await AsyncStorage.getItem(`${subject}/mund`);
 
-            const storedWeightExam: any = await AsyncStorage.getItem(`${subject}/weightExam`) ?? 50
-            const storedWeightMund: any = await AsyncStorage.getItem(`${subject}/weightMund`) ?? 50
+            const storedWeightExam: any = (await AsyncStorage.getItem(`${subject}/weightExam`)) ?? "50";
+            const storedWeightMund: any = (await AsyncStorage.getItem(`${subject}/weightMund`)) ?? "50";
 
-            setWeightExam(parseFloat(storedWeightExam))
-            setWeightMund(parseFloat(storedWeightMund))
+            setWeightExam(parseFloat(storedWeightExam));
+            setWeightMund(parseFloat(storedWeightMund));
 
             if (storedExams) {
                 const list = JSON.parse(storedExams);
@@ -66,11 +65,14 @@ export default function ChooseGrade() {
                 setMund(list);
                 await updateAverageMund(list, false);
             }
+
+            const storedAvrGes = await AsyncStorage.getItem(`${subject}/avrGes`);
+            if (storedAvrGes) setAvrGes(storedAvrGes);
         };
         load();
     }, []);
 
-// Gesamtdurchschnitt neu berechnen, sobald Schriftlich oder Mündlich da ist
+    // Gesamtdurchschnitt neu berechnen, sobald Schriftlich oder Mündlich da ist
     useEffect(() => {
         calcGes(avrExams, avrMund);
     }, [avrExams, avrMund]);
@@ -105,28 +107,26 @@ export default function ChooseGrade() {
 
     // Gesamt Durchschnitt berechnen
     const calcGes = async (examVal?: string | number, mundVal?: string | number) => {
-        const ex = parseFloat(examVal?.toString() ?? "");
-        const mu = parseFloat(mundVal?.toString() ?? "");
+        const ex = isNaN(parseFloat(examVal?.toString() ?? "")) ? null : parseFloat(examVal!.toString());
+        const mu = isNaN(parseFloat(mundVal?.toString() ?? "")) ? null : parseFloat(mundVal!.toString());
 
         const storedWeightExam = await AsyncStorage.getItem(`${subject}/weightExam`);
         const storedWeightMund = await AsyncStorage.getItem(`${subject}/weightMund`);
 
-        // Fallback falls noch nichts gespeichert ist → 50/50
         const weightExam = parseFloat(storedWeightExam ?? "50");
         const weightMund = parseFloat(storedWeightMund ?? "50");
 
         let ges = "-";
 
-        if (!isNaN(ex) && !isNaN(mu)) {
+        if (ex !== null && mu !== null) {
             const totalWeight = weightExam + weightMund;
             ges = ((ex * weightExam + mu * weightMund) / totalWeight).toFixed(1);
-        } else if (!isNaN(ex)) {
+        } else if (ex !== null) {
             ges = ex.toFixed(1);
-        } else if (!isNaN(mu)) {
+        } else if (mu !== null) {
             ges = mu.toFixed(1);
         }
 
-        // @ts-ignore
         setAvrGes(ges);
         await AsyncStorage.setItem(`${subject}/avrGes`, ges);
     };
@@ -155,46 +155,35 @@ export default function ChooseGrade() {
         setShowMundModal(false);
     };
 
-    // Schriftlich Löschen
-
+    // Schriftlich löschen
     const deleteExam = (exam: string) => {
-        setExamToDelete(exam)
-        setDeleteExamAlert(true)
-    }
+        setExamToDelete(exam);
+        setDeleteExamAlert(true);
+    };
 
     const deleteExamConfirm = async () => {
-        const newExamsList = exams.filter(s => s.exam !== examToDelete);
+        const newExamsList = exams.filter((s) => s.exam !== examToDelete);
         await AsyncStorage.setItem(`${subject}/exam`, JSON.stringify(newExamsList));
         setExams(newExamsList);
-
-        // Durchschnitt neu berechnen
         await updateAverageExam(newExamsList);
-
-        // Modal schließen
         setDeleteExamAlert(false);
         setExamToDelete(null);
     };
 
-    // Mündlich Löschen
-
+    // Mündlich löschen
     const deleteMund = (exam: string) => {
-        setMundToDelete(exam)
-        setDeleteMundAlert(true)
-    }
+        setMundToDelete(exam);
+        setDeleteMundAlert(true);
+    };
 
     const deleteMundConfirm = async () => {
-        const newMundsList = mund.filter(s => s.mund !== mundToDelete);
+        const newMundsList = mund.filter((s) => s.mund !== mundToDelete);
         await AsyncStorage.setItem(`${subject}/mund`, JSON.stringify(newMundsList));
         setMund(newMundsList);
-
-        // Durchschnitt neu berechnen
         await updateAverageMund(newMundsList);
-
-        // Modal schließen
         setDeleteMundAlert(false);
         setMundToDelete(null);
     };
-
 
     return (
         <SafeAreaView style={styles.container}>
