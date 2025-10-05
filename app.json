@@ -9,7 +9,8 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.leonhuber.splanschool"
     },
     "android": {
       "adaptiveIcon": {
@@ -34,7 +35,8 @@
           "resizeMode": "contain",
           "backgroundColor": "#22e55c"
         }
-      ]
+      ],
+      "expo-build-properties"
     ],
     "experiments": {
       "typedRoutes": true

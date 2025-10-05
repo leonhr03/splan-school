@@ -41,7 +41,6 @@ export default function HomeStudent() {
                     const parsed = JSON.parse(storedSubjects);
                     setSubjects(parsed);
 
-                    // Alle avrGes Werte laden
                     const map: { [key: string]: string } = {};
                     for (const item of parsed) {
                         const value = await AsyncStorage.getItem(`${item.subject}/avrGes`);
@@ -104,7 +103,6 @@ export default function HomeStudent() {
             await AsyncStorage.removeItem(`${subjectToDelete}/mundAvr`);
             await AsyncStorage.removeItem(`${subjectToDelete}/avrGes`);
 
-
             setSubjectToDelete(null);
             setDeleteAlert(false);
         } catch (e) {
@@ -148,7 +146,7 @@ export default function HomeStudent() {
                 <Text style={styles.buText}>+</Text>
             </TouchableOpacity>
 
-            {/* Modal zum Hinzufügen */}
+            {/* Add Modal */}
             <Modal transparent animationType="slide" visible={addAlert}>
                 <TouchableOpacity
                     style={styles.sheetOverlay}
@@ -178,7 +176,7 @@ export default function HomeStudent() {
                 </TouchableOpacity>
             </Modal>
 
-            {/* Modal zum Löschen */}
+            {/* Delete Modal */}
             <Modal transparent animationType="fade" visible={deleteAlert}>
                 <View style={styles.centeredView}>
                     <View style={styles.deleteModal}>
@@ -211,7 +209,6 @@ const styles = StyleSheet.create({
     container: { flex: 1, padding: 16, backgroundColor: "#000", alignItems: "center" },
     heading: { fontSize: 26, fontWeight: "bold", color: "#22c55e", marginTop: 20 },
     buText: { fontSize: 22, color: "#fff" },
-
     text: {
         marginVertical: 20,
         fontSize: 25,
@@ -219,7 +216,6 @@ const styles = StyleSheet.create({
         textAlign: "center",
         lineHeight: 24,
     },
-
     item: {
         flexDirection: "row",
         justifyContent: "space-between",
@@ -229,15 +225,17 @@ const styles = StyleSheet.create({
     },
     itemLeft: {
         flex: 1,
-        backgroundColor: "#111",
+        backgroundColor: "#060606",
         borderColor: "#22c55e",
-        borderRadius: 12,
+        borderRadius: 25,
         borderWidth: 2,
+        height: 50,
         padding: 10,
         alignItems: "center",
+        justifyContent: "center",
     },
     itemRight: {
-        backgroundColor: "#111",
+        backgroundColor: "#060606",
         height: 50,
         width: 50,
         borderRadius: 25,
@@ -293,8 +291,6 @@ const styles = StyleSheet.create({
     },
     addButtonText: { fontSize: 17, color: "#fff", fontWeight: "600" },
     list: { marginBottom: 80 },
-
-    // Delete Modal
     centeredView: {
         flex: 1,
         justifyContent: "center",

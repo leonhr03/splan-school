@@ -8,6 +8,7 @@ import {
     FlatList,
     Modal,
     TextInput,
+    TouchableWithoutFeedback,
 } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -18,13 +19,12 @@ export default function ChooseGrade() {
     const { subject } = useLocalSearchParams();
 
     // Schriftlich
-    const [exams, setExams] = useState<{ exam: string; grade: string }[]>([]);
+    const [exams, setExams] = useState<{ exam: string; grade: string; type: string }[]>([]);
     const [avrExams, setAvrExams] = useState("-");
     const [newExam, setNewExam] = useState("");
     const [newExamGrade, setNewExamGrade] = useState("");
+    const [newExamType, setNewExamType] = useState("test");
     const [showExamModal, setShowExamModal] = useState(false);
-    const [deleteExamAlert, setDeleteExamAlert] = useState(false);
-    const [examToDelete, setExamToDelete] = useState<string | null>(null);
     const [weightExam, setWeightExam] = useState(50);
     const [editExamAlert, setEditExamAlert] = useState(false);
 
@@ -34,25 +34,28 @@ export default function ChooseGrade() {
     const [newMund, setNewMund] = useState("");
     const [newMundGrade, setNewMundGrade] = useState("");
     const [showMundModal, setShowMundModal] = useState(false);
-    const [deleteMundAlert, setDeleteMundAlert] = useState(false);
-    const [mundToDelete, setMundToDelete] = useState<string | null>(null);
     const [weightMund, setWeightMund] = useState(50);
     const [editMundAlert, setEditMundAlert] = useState(false);
 
     // Gesamt
     const [avrGes, setAvrGes] = useState("-");
 
+    // 🔥 Delete-Modal States
+    const [deleteModalVisible, setDeleteModalVisible] = useState(false);
+    const [deleteType, setDeleteType] = useState<"exam" | "mund" | null>(null);
+    const [deleteIndex, setDeleteIndex] = useState<number | null>(null);
+    const [deleteItemName, setDeleteItemName] = useState<string>("");
+
     // Laden
     useEffect(() => {
         const load = async () => {
             const storedExams = await AsyncStorage.getItem(`${subject}/exam`);
             const storedMund = await AsyncStorage.getItem(`${subject}/mund`);
+            const storedWeightExam = await AsyncStorage.getItem(`${subject}/weightExam`);
+            const storedWeightMund = await AsyncStorage.getItem(`${subject}/weightMund`);
 
-            const storedWeightExam: any = (await AsyncStorage.getItem(`${subject}/weightExam`)) ?? "50";
-            const storedWeightMund: any = (await AsyncStorage.getItem(`${subject}/weightMund`)) ?? "50";
-
-            setWeightExam(parseFloat(storedWeightExam));
-            setWeightMund(parseFloat(storedWeightMund));
+            if (storedWeightExam) setWeightExam(parseFloat(storedWeightExam));
+            if (storedWeightMund) setWeightMund(parseFloat(storedWeightMund));
 
             if (storedExams) {
                 const list = JSON.parse(storedExams);
@@ -72,20 +75,26 @@ export default function ChooseGrade() {
         load();
     }, []);
 
-    // Gesamtdurchschnitt neu berechnen, sobald Schriftlich oder Mündlich da ist
     useEffect(() => {
         calcGes(avrExams, avrMund);
-    }, [avrExams, avrMund]);
+    }, [avrExams, avrMund, weightExam, weightMund]);
 
     // Durchschnitt Schriftlich
-    const updateAverageExam = async (list: { grade: string }[], recalc = true) => {
+    const updateAverageExam = async (list: { grade: string; type: string }[], recalc = true) => {
         if (list.length === 0) {
             setAvrExams("-");
             if (recalc) calcGes("-", avrMund);
             return;
         }
-        const sum = list.reduce((acc, curr) => acc + parseFloat(curr.grade), 0);
-        const avg = (sum / list.length).toFixed(1);
+        let totalWeight = 0;
+        let weightedSum = 0;
+        list.forEach((item) => {
+            const g = parseFloat(item.grade);
+            const weight = item.type === "arbeit" ? 2 : 1;
+            weightedSum += g * weight;
+            totalWeight += weight;
+        });
+        const avg = (weightedSum / totalWeight).toFixed(1);
         setAvrExams(avg);
         await AsyncStorage.setItem(`${subject}/examsAvr`, avg);
         if (recalc) calcGes(avg, avrMund);
@@ -105,16 +114,10 @@ export default function ChooseGrade() {
         if (recalc) calcGes(avrExams, avg);
     };
 
-    // Gesamt Durchschnitt berechnen
+    // Gesamt Durchschnitt
     const calcGes = async (examVal?: string | number, mundVal?: string | number) => {
         const ex = isNaN(parseFloat(examVal?.toString() ?? "")) ? null : parseFloat(examVal!.toString());
         const mu = isNaN(parseFloat(mundVal?.toString() ?? "")) ? null : parseFloat(mundVal!.toString());
-
-        const storedWeightExam = await AsyncStorage.getItem(`${subject}/weightExam`);
-        const storedWeightMund = await AsyncStorage.getItem(`${subject}/weightMund`);
-
-        const weightExam = parseFloat(storedWeightExam ?? "50");
-        const weightMund = parseFloat(storedWeightMund ?? "50");
 
         let ges = "-";
 
@@ -134,12 +137,13 @@ export default function ChooseGrade() {
     // Schriftlich hinzufügen
     const addExam = async () => {
         if (!newExam.trim() || !newExamGrade.trim()) return;
-        const newList = [...exams, { exam: newExam, grade: newExamGrade }];
+        const newList = [...exams, { exam: newExam, grade: newExamGrade, type: newExamType }];
         setExams(newList);
         await AsyncStorage.setItem(`${subject}/exam`, JSON.stringify(newList));
         await updateAverageExam(newList);
         setNewExam("");
         setNewExamGrade("");
+        setNewExamType("test");
         setShowExamModal(false);
     };
 
@@ -155,55 +159,54 @@ export default function ChooseGrade() {
         setShowMundModal(false);
     };
 
-    // Schriftlich löschen
-    const deleteExam = (exam: string) => {
-        setExamToDelete(exam);
-        setDeleteExamAlert(true);
+    // 🔥 Öffnet Lösch-Modal
+    const confirmDelete = (type: "exam" | "mund", index: number, name: string) => {
+        setDeleteType(type);
+        setDeleteIndex(index);
+        setDeleteItemName(name);
+        setDeleteModalVisible(true);
     };
 
-    const deleteExamConfirm = async () => {
-        const newExamsList = exams.filter((s) => s.exam !== examToDelete);
-        await AsyncStorage.setItem(`${subject}/exam`, JSON.stringify(newExamsList));
-        setExams(newExamsList);
-        await updateAverageExam(newExamsList);
-        setDeleteExamAlert(false);
-        setExamToDelete(null);
-    };
-
-    // Mündlich löschen
-    const deleteMund = (exam: string) => {
-        setMundToDelete(exam);
-        setDeleteMundAlert(true);
-    };
-
-    const deleteMundConfirm = async () => {
-        const newMundsList = mund.filter((s) => s.mund !== mundToDelete);
-        await AsyncStorage.setItem(`${subject}/mund`, JSON.stringify(newMundsList));
-        setMund(newMundsList);
-        await updateAverageMund(newMundsList);
-        setDeleteMundAlert(false);
-        setMundToDelete(null);
+    // 🔥 Löschen durchführen
+    const handleDelete = async () => {
+        if (deleteType === "exam" && deleteIndex !== null) {
+            const newList = exams.filter((_, i) => i !== deleteIndex);
+            setExams(newList);
+            await AsyncStorage.setItem(`${subject}/exam`, JSON.stringify(newList));
+            await updateAverageExam(newList);
+        }
+        if (deleteType === "mund" && deleteIndex !== null) {
+            const newList = mund.filter((_, i) => i !== deleteIndex);
+            setMund(newList);
+            await AsyncStorage.setItem(`${subject}/mund`, JSON.stringify(newList));
+            await updateAverageMund(newList);
+        }
+        setDeleteModalVisible(false);
+        setDeleteType(null);
+        setDeleteIndex(null);
     };
 
     return (
         <SafeAreaView style={styles.container}>
             <Text style={styles.heading}>{subject}</Text>
-
             <Text style={styles.gesHeading}>Gesamt Ø {avrGes}</Text>
 
             <View style={styles.cardLayout}>
                 {/* Schriftlich */}
                 <View style={styles.card}>
-                    <Text style={styles.text}>Schriftlich {"Ø "}{avrExams}</Text>
+                    <Text style={styles.text}>Schriftlich Ø {avrExams}</Text>
                     <TouchableOpacity style={styles.editButton} onPress={() => setEditExamAlert(true)}>
                         <Ionicons name="pencil" size={20} color="#fff" />
                     </TouchableOpacity>
 
                     <FlatList
                         data={exams}
-                        renderItem={({ item }) => (
-                            <TouchableOpacity style={styles.listItem} onLongPress={() => deleteExam(item.exam)}>
-                                <Text style={styles.listText}>{item.exam}</Text>
+                        renderItem={({ item, index }) => (
+                            <TouchableOpacity
+                                style={styles.listItem}
+                                onLongPress={() => confirmDelete("exam", index, item.exam)}
+                            >
+                                <Text style={styles.listText}>{item.exam} ({item.type})</Text>
                                 <View style={styles.listGrade}>
                                     <Text style={styles.listText}>{item.grade}</Text>
                                 </View>
@@ -218,15 +221,18 @@ export default function ChooseGrade() {
 
                 {/* Mündlich */}
                 <View style={styles.card}>
-                    <Text style={styles.text}>Mündlich {"Ø "}{avrMund}</Text>
+                    <Text style={styles.text}>Mündlich Ø {avrMund}</Text>
                     <TouchableOpacity style={styles.editButton} onPress={() => setEditMundAlert(true)}>
                         <Ionicons name="pencil" size={20} color="#fff" />
                     </TouchableOpacity>
 
                     <FlatList
                         data={mund}
-                        renderItem={({ item }) => (
-                            <TouchableOpacity style={styles.listItem} onLongPress={() => deleteMund(item.mund)}>
+                        renderItem={({ item, index }) => (
+                            <TouchableOpacity
+                                style={styles.listItem}
+                                onLongPress={() => confirmDelete("mund", index, item.mund)}
+                            >
                                 <Text style={styles.listText}>{item.mund}</Text>
                                 <View style={styles.listGrade}>
                                     <Text style={styles.listText}>{item.grade}</Text>
@@ -241,175 +247,183 @@ export default function ChooseGrade() {
                 </View>
             </View>
 
+            {/* Lösch-Modal */}
+            <Modal transparent animationType="fade" visible={deleteModalVisible}>
+                <View style={styles.overlay}>
+                    <View style={styles.deleteModal}>
+                        <Text style={styles.deleteTitle}>Eintrag löschen?</Text>
+                        <Text style={styles.deleteText}>
+                            Willst du wirklich {deleteItemName} löschen?
+                        </Text>
+                        <View style={styles.deleteButtons}>
+                            <TouchableOpacity
+                                style={styles.cancelButton}
+                                onPress={() => setDeleteModalVisible(false)}
+                            >
+                                <Text style={styles.cancelText}>Abbrechen</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                                style={styles.deleteButton}
+                                onPress={handleDelete}
+                            >
+                                <Text style={styles.deleteTextButton}>Löschen</Text>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                </View>
+            </Modal>
+
             {/* Schriftlich Modal */}
             <Modal transparent animationType="slide" visible={showExamModal}>
-                <TouchableOpacity style={styles.overlay} activeOpacity={1} onPress={() => setShowExamModal(false)}>
-                    <View style={styles.modalContainer}>
-                        <Text style={styles.heading}>Schriftlich hinzufügen</Text>
-                        <TextInput
-                            value={newExam}
-                            onChangeText={setNewExam}
-                            style={styles.input}
-                            placeholder="Prüfung"
-                            placeholderTextColor="#aaa"
-                        />
-                        <TextInput
-                            value={newExamGrade}
-                            onChangeText={setNewExamGrade}
-                            style={styles.input}
-                            placeholder="Note"
-                            keyboardType="numeric"
-                            placeholderTextColor="#aaa"
-                        />
-                        <TouchableOpacity style={styles.saveButton} onPress={addExam}>
-                            <Text style={styles.saveButtonText}>Speichern</Text>
-                        </TouchableOpacity>
-                    </View>
+                <TouchableOpacity style={styles.overlay} onPress={() => setShowExamModal(false)}>
+                    <TouchableWithoutFeedback  onPress={() => setShowExamModal(true)}>
+                        <View style={styles.modalContainer}>
+                            <Text style={styles.heading}>Schriftlich hinzufügen</Text>
+                            <TextInput
+                                value={newExam}
+                                onChangeText={setNewExam}
+                                style={styles.input}
+                                placeholder="Prüfung/Test"
+                                placeholderTextColor="#aaa"
+                            />
+                            <TextInput
+                                value={newExamGrade}
+                                onChangeText={setNewExamGrade}
+                                style={styles.input}
+                                placeholder="Note"
+                                keyboardType="numeric"
+                                placeholderTextColor="#aaa"
+                            />
+                            <View style={{ flexDirection: "row", justifyContent: "space-around", marginTop: 15 }}>
+                                <TouchableOpacity
+                                    style={[styles.typeButton, newExamType === "test" && styles.typeButtonActive]}
+                                    onPress={() => setNewExamType("test")}
+                                >
+                                    <Text style={styles.typeButtonText}>Test</Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity
+                                    style={[styles.typeButton, newExamType === "arbeit" && styles.typeButtonActive]}
+                                    onPress={() => setNewExamType("arbeit")}
+                                >
+                                    <Text style={styles.typeButtonText}>Arbeit</Text>
+                                </TouchableOpacity>
+                            </View>
+                            <TouchableOpacity style={styles.saveButton} onPress={addExam}>
+                                <Text style={styles.saveButtonText}>Speichern</Text>
+                            </TouchableOpacity>
+                        </View>
+                    </TouchableWithoutFeedback>
                 </TouchableOpacity>
             </Modal>
 
             {/* Mündlich Modal */}
             <Modal transparent animationType="slide" visible={showMundModal}>
-                <TouchableOpacity style={styles.overlay} activeOpacity={1} onPress={() => setShowMundModal(false)}>
-                    <View style={styles.modalContainer}>
-                        <Text style={styles.heading}>Mündlich hinzufügen</Text>
-                        <TextInput
-                            value={newMund}
-                            onChangeText={setNewMund}
-                            style={styles.input}
-                            placeholder="Thema"
-                            placeholderTextColor="#aaa"
-                        />
-                        <TextInput
-                            value={newMundGrade}
-                            onChangeText={setNewMundGrade}
-                            style={styles.input}
-                            placeholder="Note"
-                            keyboardType="numeric"
-                            placeholderTextColor="#aaa"
-                        />
-                        <TouchableOpacity style={styles.saveButton} onPress={addMund}>
-                            <Text style={styles.saveButtonText}>Speichern</Text>
-                        </TouchableOpacity>
-                    </View>
+                <TouchableOpacity style={styles.overlay} onPress={() => setShowMundModal(false)}>
+                    <TouchableWithoutFeedback style={styles.modalContainer} onPress={() => setShowMundModal(true)}>
+                        <View style={styles.modalContainer}>
+                            <Text style={styles.heading}>Mündlich hinzufügen</Text>
+                            <TextInput
+                                value={newMund}
+                                onChangeText={setNewMund}
+                                style={styles.input}
+                                placeholder="Thema"
+                                placeholderTextColor="#aaa"
+                            />
+                            <TextInput
+                                value={newMundGrade}
+                                onChangeText={setNewMundGrade}
+                                style={styles.input}
+                                placeholder="Note"
+                                keyboardType="numeric"
+                                placeholderTextColor="#aaa"
+                            />
+                            <TouchableOpacity style={styles.saveButton} onPress={addMund}>
+                                <Text style={styles.saveButtonText}>Speichern</Text>
+                            </TouchableOpacity>
+                        </View>
+                    </TouchableWithoutFeedback>
                 </TouchableOpacity>
             </Modal>
 
-            {/* Schriftlich Delete */}
-            <Modal transparent animationType="fade" visible={deleteExamAlert}>
-                <View style={styles.centeredView}>
-                    <View style={styles.deleteModal}>
-                        <Text style={styles.deleteTitle}>Delete Subject?</Text>
-                        <Text style={styles.deleteText}>
-                            {`Do you really want to delete "${examToDelete}"?`}
-                        </Text>
-                        <View style={styles.deleteButtons}>
-                            <TouchableOpacity
-                                style={styles.cancelButton}
-                                onPress={() => setDeleteExamAlert(false)}
-                            >
-                                <Text style={styles.cancelText}>Cancel</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity
-                                style={styles.deleteButton}
-                                onPress={deleteExamConfirm}
-                            >
-                                <Text style={styles.deleteTextButton}>Delete</Text>
-                            </TouchableOpacity>
-                        </View>
-                    </View>
-                </View>
-            </Modal>
-
-            {/* Mündlich delete */}
-            <Modal transparent animationType="fade" visible={deleteMundAlert}>
-                <View style={styles.centeredView}>
-                    <View style={styles.deleteModal}>
-                        <Text style={styles.deleteTitle}>Delete Subject?</Text>
-                        <Text style={styles.deleteText}>
-                            {`Do you really want to delete "${mundToDelete}"?`}
-                        </Text>
-                        <View style={styles.deleteButtons}>
-                            <TouchableOpacity
-                                style={styles.cancelButton}
-                                onPress={() => setDeleteMundAlert(false)}
-                            >
-                                <Text style={styles.cancelText}>Cancel</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity
-                                style={styles.deleteButton}
-                                onPress={deleteMundConfirm}
-                            >
-                                <Text style={styles.deleteTextButton}>Delete</Text>
-                            </TouchableOpacity>
-                        </View>
-                    </View>
-                </View>
-            </Modal>
-
+            {/* Schriftlich Gewichtung */}
             <Modal transparent animationType="fade" visible={editExamAlert}>
-                <View style={styles.centeredView}>
-                    <View style={styles.deleteModal}>
-                        <Text style={styles.deleteTitle}>Edit Exam</Text>
-                        <View style={styles.editView}>
-                            <TouchableOpacity style={styles.addButton} onPress={() => setWeightExam(weightExam - 5)}>
-                                <Text style={styles.addButtonText}>-</Text>
-                            </TouchableOpacity>
-                            <Text style={styles.weightText}>{weightExam}{"%"}</Text>
-                            <TouchableOpacity style={styles.addButton} onPress={() => setWeightExam(weightExam + 5)}>
-                                <Text style={styles.addButtonText}>+</Text>
+                <TouchableOpacity style={styles.overlay} onPress={() => setEditExamAlert(false)}>
+                    <TouchableWithoutFeedback  onPress={() => setEditExamAlert(true)}>
+                        <View style={styles.modalContainer}>
+                            <Text style={styles.heading}>Gewichtung Schriftlich</Text>
+                            <View style={{ flexDirection: "row", justifyContent: "space-around", marginTop: 20 }}>
+                                <TouchableOpacity
+                                    style={styles.typeButton}
+                                    onPress={() => setWeightExam((prev) => Math.max(0, prev - 5))}
+                                >
+                                    <Text style={styles.typeButtonText}>-</Text>
+                                </TouchableOpacity>
+                                <Text style={[styles.typeButtonText, { alignSelf: "center" }]}>{weightExam}%</Text>
+                                <TouchableOpacity
+                                    style={styles.typeButton}
+                                    onPress={() => setWeightExam((prev) => Math.min(100, prev + 5))}
+                                >
+                                    <Text style={styles.typeButtonText}>+</Text>
+                                </TouchableOpacity>
+                            </View>
+                            <TouchableOpacity
+                                style={[styles.saveButton, { marginTop: 30 }]}
+                                onPress={async () => {
+                                    await AsyncStorage.setItem(`${subject}/weightExam`, weightExam.toString());
+                                    await AsyncStorage.setItem(`${subject}/weightMund`, (100 - weightExam).toString());
+                                    setWeightMund(100 - weightExam);
+                                    setEditExamAlert(false);
+                                    calcGes(avrExams, avrMund);
+                                }}
+                            >
+                                <Text style={styles.saveButtonText}>Fertig</Text>
                             </TouchableOpacity>
                         </View>
-
-                        <TouchableOpacity
-                            style={styles.saveButton}
-                            onPress={async () => {
-                                await AsyncStorage.setItem(`${subject}/weightExam`, weightExam.toString());
-                                setEditExamAlert(false);
-                                // neu berechnen mit aktuellen Ø
-                                calcGes(avrExams, avrMund);
-                            }}
-                        >
-                            <Text style={styles.saveButtonText}>finish</Text>
-                        </TouchableOpacity>
-                    </View>
-                </View>
+                    </TouchableWithoutFeedback>
+                </TouchableOpacity>
             </Modal>
 
+            {/* Mündlich Gewichtung */}
             <Modal transparent animationType="fade" visible={editMundAlert}>
-                <View style={styles.centeredView}>
-                    <View style={styles.deleteModal}>
-                        <Text style={styles.deleteTitle}>Edit Oral</Text>
-                        <View style={styles.editView}>
-                            <TouchableOpacity style={styles.addButton} onPress={() => setWeightMund(weightMund - 5)}>
-                                <Text style={styles.addButtonText}>-</Text>
-                            </TouchableOpacity>
-                            <Text style={styles.weightText}>{weightMund}{"%"}</Text>
-                            <TouchableOpacity style={styles.addButton} onPress={() => setWeightMund(weightMund + 5)}>
-                                <Text style={styles.addButtonText}>+</Text>
+                <TouchableOpacity style={styles.overlay} onPress={() => setEditMundAlert(false)}>
+                    <TouchableWithoutFeedback  onPress={() => setEditMundAlert(true)}>
+                        <View style={styles.modalContainer}>
+                            <Text style={styles.heading}>Gewichtung Mündlich</Text>
+                            <View style={{ flexDirection: "row", justifyContent: "space-around", marginTop: 20 }}>
+                                <TouchableOpacity
+                                    style={styles.typeButton}
+                                    onPress={() => setWeightMund((prev) => Math.max(0, prev - 5))}
+                                >
+                                    <Text style={styles.typeButtonText}>-</Text>
+                                </TouchableOpacity>
+                                <Text style={[styles.typeButtonText, { alignSelf: "center" }]}>{weightMund}%</Text>
+                                <TouchableOpacity
+                                    style={styles.typeButton}
+                                    onPress={() => setWeightMund((prev) => Math.min(100, prev + 5))}
+                                >
+                                    <Text style={styles.typeButtonText}>+</Text>
+                                </TouchableOpacity>
+                            </View>
+                            <TouchableOpacity
+                                style={[styles.saveButton, { marginTop: 30 }]}
+                                onPress={async () => {
+                                    await AsyncStorage.setItem(`${subject}/weightMund`, weightMund.toString());
+                                    await AsyncStorage.setItem(`${subject}/weightExam`, (100 - weightMund).toString());
+                                    setWeightExam(100 - weightMund);
+                                    setEditMundAlert(false);
+                                    calcGes(avrExams, avrMund);
+                                }}
+                            >
+                                <Text style={styles.saveButtonText}>Fertig</Text>
                             </TouchableOpacity>
                         </View>
-
-                        <TouchableOpacity
-                            style={styles.saveButton}
-                            onPress={async () => {
-                                await AsyncStorage.setItem(`${subject}/weightMund`, weightMund.toString());
-                                setEditMundAlert(false);
-                                // neu berechnen mit aktuellen Ø
-                                calcGes(avrExams, avrMund);
-                            }}
-                        >
-                            <Text style={styles.saveButtonText}>finish</Text>
-                        </TouchableOpacity>
-                    </View>
-                </View>
+                    </TouchableWithoutFeedback>
+                </TouchableOpacity>
             </Modal>
+
 
             {/* Zurück */}
-            <TouchableOpacity
-                style={styles.backButton}
-                onPress={() => router.replace("/student/home")}
-            >
+            <TouchableOpacity style={styles.backButton} onPress={() => router.replace("/student/home")}>
                 <Text style={styles.buText}>{"<-"}</Text>
             </TouchableOpacity>
         </SafeAreaView>
@@ -420,114 +434,32 @@ const styles = StyleSheet.create({
     container: { flex: 1, backgroundColor: "#000", padding: 16 },
     heading: { fontSize: 22, fontWeight: "bold", color: "#22c55e", marginTop: 20, textAlign: "center" },
     gesHeading: { fontSize: 20, fontWeight: "bold", color: "#fff", marginVertical: 10, textAlign: "center" },
-    editButton: {
-        position: "absolute",
-        right: 20,
-        top: 20,
-    },
+    editButton: { position: "absolute", right: 20, top: 20 },
     cardLayout: { flex: 1, marginBottom: 80 },
-    card: {
-        flex: 1,
-        marginVertical: 10,
-        marginHorizontal: 20,
-        padding: 16,
-        borderRadius: 15,
-        borderWidth: 2,
-        borderColor: "#22c55e",
-    },
+    card: { flex: 1, marginVertical: 10, marginHorizontal: 20, padding: 16, borderRadius: 15, borderWidth: 2, borderColor: "#22c55e" },
     text: { color: "#fff", fontSize: 20, marginBottom: 10, fontWeight: "bold" },
     listItem: { flexDirection: "row", justifyContent: "space-between", paddingVertical: 5 },
     listText: { color: "#fff", fontSize: 18 },
     listGrade: { borderColor: "#22c55e", borderWidth: 2, height: 40, width: 40, borderRadius: 20, alignItems: "center", justifyContent: "center" },
-    addButton: {
-        marginTop: 10,
-        backgroundColor: "#22c55e",
-        width: 40,
-        height: 40,
-        borderRadius: 20,
-        alignItems: "center",
-        justifyContent: "center",
-        alignSelf: "flex-end",
-    },
+    addButton: { marginTop: 10, backgroundColor: "#22c55e", width: 40, height: 40, borderRadius: 20, alignItems: "center", justifyContent: "center", alignSelf: "flex-end" },
     addButtonText: { color: "#fff", fontSize: 24, fontWeight: "bold" },
-    overlay: { flex: 1, backgroundColor: "rgba(0,0,0,0.5)", justifyContent: "flex-end" },
-    modalContainer: { backgroundColor: "#111", borderTopLeftRadius: 20, borderTopRightRadius: 20, padding: 20, height: "60%" },
-    input: {
-        marginTop: 15,
-        backgroundColor: "#000",
-        borderColor: "#22c55e",
-        borderWidth: 2,
-        borderRadius: 10,
-        padding: 10,
-        color: "#fff",
-    },
-    saveButton: {
-        marginTop: 20,
-        backgroundColor: "#22c55e",
-        padding: 12,
-        borderRadius: 10,
-        alignItems: "center",
-    },
-    saveButtonText: { color: "#fff", fontSize: 16, fontWeight: "bold" },
-    backButton: {
-        backgroundColor: "#22c55e",
-        width: 60,
-        height: 60,
-        borderRadius: 30,
-        position: "absolute",
-        left: 30,
-        bottom: 30,
-        alignItems: "center",
-        justifyContent: "center",
-    },
-    buText: { fontSize: 22, color: "#fff" },
-
-    // Delete Modal
-    centeredView: {
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
-        backgroundColor: "rgba(0,0,0,0.5)",
-    },
-    deleteModal: {
-        backgroundColor: "#111",
-        borderRadius: 15,
-        padding: 20,
-        width: "95%",
-        alignItems: "center",
-
-    },
+    overlay: { flex: 1, backgroundColor: "rgba(0,0,0,0.5)", justifyContent: "center", alignItems: "center" },
+    deleteModal: { backgroundColor: "#111", borderRadius: 15, padding: 20, width: "80%", alignItems: "center" },
     deleteTitle: { fontSize: 22, fontWeight: "bold", color: "#22c55e", marginBottom: 10 },
     deleteText: { fontSize: 18, color: "#fff", marginBottom: 20, textAlign: "center" },
     deleteButtons: { flexDirection: "row", justifyContent: "space-between", width: "100%" },
-    cancelButton: {
-        flex: 1,
-        marginRight: 10,
-        backgroundColor: "#333",
-        padding: 12,
-        borderRadius: 10,
-        alignItems: "center",
-    },
-    deleteButton: {
-        flex: 1,
-        marginLeft: 10,
-        backgroundColor: "#e11d48",
-        padding: 12,
-        borderRadius: 10,
-        alignItems: "center",
-    },
+    cancelButton: { flex: 1, marginRight: 10, backgroundColor: "#333", padding: 12, borderRadius: 10, alignItems: "center" },
+    deleteButton: { flex: 1, marginLeft: 10, backgroundColor: "#e11d48", padding: 12, borderRadius: 10, alignItems: "center" },
     cancelText: { color: "#fff", fontSize: 16, fontWeight: "600" },
     deleteTextButton: { color: "#fff", fontSize: 16, fontWeight: "600" },
+    backButton: { backgroundColor: "#22c55e", width: 60, height: 60, borderRadius: 30, position: "absolute", left: 30, bottom: 30, alignItems: "center", justifyContent: "center" },
+    buText: { fontSize: 22, color: "#fff" },
+    modalContainer: { backgroundColor: "#111", borderRadius: 20, padding: 20, width: "90%" },
+    input: { marginTop: 15, backgroundColor: "#000", borderColor: "#22c55e", borderWidth: 2, borderRadius: 10, padding: 10, color: "#fff" },
+    saveButton: { marginTop: 20, backgroundColor: "#22c55e", padding: 12, borderRadius: 10, alignItems: "center" },
+    saveButtonText: { color: "#fff", fontSize: 16, fontWeight: "bold" },
+    typeButton: { padding: 10, borderRadius: 10, borderWidth: 2, borderColor: "#22c55e", alignItems: "center", justifyContent: "center" },
+    typeButtonActive: { backgroundColor: "#22c55e" },
+    typeButtonText: { color: "#fff", fontSize: 16, fontWeight: "bold" },
 
-    editView: {
-        flexDirection: "row",
-        justifyContent: "center",
-        alignItems: "center",
-    },
-
-    weightText: {
-       marginHorizontal: 30,
-       color: "#ffffff",
-       fontSize: 24,
-    },
 });

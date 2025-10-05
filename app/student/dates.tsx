@@ -118,7 +118,7 @@ export default function Dates() {
                         style={styles.sheetsContainer}
                         onPress={() => {}}
                     >
-                        <Text style={styles.heading}>Add A Subject</Text>
+                        <Text style={styles.heading}>Add A Date</Text>
                         <TextInput
                             value={newExam}
                             onChangeText={setNewExam}
@@ -191,6 +191,7 @@ const styles = StyleSheet.create({
     },
     heading: {
         fontSize: 26,
+        marginBottom: 15,
         fontWeight: "bold",
         color: "#22c55e",
         marginTop: 20,

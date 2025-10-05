@@ -9,8 +9,9 @@ export default function StudentLayout() {
                 tabBarActiveTintColor: '#22c55e',
                 tabBarInactiveTintColor: '#22c55e',
                 tabBarStyle: {
-                    borderRadius: 15,
-                    backgroundColor: '#111',
+                    borderRadius: 30,
+                    height: 60,
+                    backgroundColor: '#060606',
                     marginBottom: 25,
                     marginLeft: 10,
                     marginRight: 10,
