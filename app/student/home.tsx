@@ -256,33 +256,38 @@ const styles = StyleSheet.create({
         alignItems: "center",
         justifyContent: "center",
         marginBottom: 80,
+        shadowColor: "#22c55e",
+        shadowOpacity: 0.9,
+        shadowRadius: 30
     },
+
     sheetOverlay: {
         flex: 1,
         backgroundColor: "rgba(0,0,0,0.1)",
         alignItems: "center",
-        justifyContent: "flex-end",
+        justifyContent: "center",
     },
+
     sheetsContainer: {
         backgroundColor: "#111",
-        borderTopLeftRadius: 20,
-        borderTopRightRadius: 20,
-        width: "100%",
-        height: "60%",
+        borderRadius: 20,
+        width: "90%",
         alignItems: "center",
     },
+
     textInput: {
         marginTop: 50,
         backgroundColor: "#111",
         borderColor: "#22c55e",
         borderRadius: 15,
         borderWidth: 2,
-        padding: 16,
+        padding: 14,
         width: "80%",
         color: "#fff",
     },
     addButton: {
         marginTop: 40,
+        marginBottom: 20,
         backgroundColor: "#22c55e",
         borderRadius: 15,
         paddingVertical: 12,
