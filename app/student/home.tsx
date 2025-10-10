@@ -256,9 +256,6 @@ const styles = StyleSheet.create({
         alignItems: "center",
         justifyContent: "center",
         marginBottom: 80,
-        shadowColor: "#22c55e",
-        shadowOpacity: 0.9,
-        shadowRadius: 30
     },
 
     sheetOverlay: {

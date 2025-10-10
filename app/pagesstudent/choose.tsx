@@ -89,7 +89,7 @@ export default function ChooseGrade() {
         let totalWeight = 0;
         let weightedSum = 0;
         list.forEach((item) => {
-            const g = parseFloat(item.grade);
+            const g = parseFloat(item.grade.replace(",", "."));
             const weight = item.type === "arbeit" ? 2 : 1;
             weightedSum += g * weight;
             totalWeight += weight;
@@ -107,17 +107,21 @@ export default function ChooseGrade() {
             if (recalc) calcGes(avrExams, "-");
             return;
         }
-        const sum = list.reduce((acc, curr) => acc + parseFloat(curr.grade), 0);
+        const sum = list.reduce((acc, curr) => acc + parseFloat(curr.grade.replace(",", ".")), 0);
         const avg = (sum / list.length).toFixed(1);
         setAvrMund(avg);
         await AsyncStorage.setItem(`${subject}/mundAvr`, avg);
         if (recalc) calcGes(avrExams, avg);
     };
 
+
     // Gesamt Durchschnitt
     const calcGes = async (examVal?: string | number, mundVal?: string | number) => {
-        const ex = isNaN(parseFloat(examVal?.toString() ?? "")) ? null : parseFloat(examVal!.toString());
-        const mu = isNaN(parseFloat(mundVal?.toString() ?? "")) ? null : parseFloat(mundVal!.toString());
+        const exStr = examVal?.toString().replace(",", ".") ?? "";
+        const muStr = mundVal?.toString().replace(",", ".") ?? "";
+
+        const ex = isNaN(parseFloat(exStr)) ? null : parseFloat(exStr);
+        const mu = isNaN(parseFloat(muStr)) ? null : parseFloat(muStr);
 
         let ges = "-";
 

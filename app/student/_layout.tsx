@@ -40,11 +40,11 @@ export default function StudentLayout() {
                              ),
                          }}/>
 
-            <Tabs.Screen name="account"
+            <Tabs.Screen name="std_plan"
                          options={{
-                             tabBarLabel: 'Konto',
+                             tabBarLabel: 'Plan',
                              tabBarIcon: ({ color, size, focused }) => (
-                                 <Ionicons name={focused ? 'person' : 'person-outline'} size={size} color={color} />
+                                 <Ionicons name={focused ? 'list' : 'list-outline'} size={size} color={color} />
                              ),
                          }}/>
         </Tabs>
