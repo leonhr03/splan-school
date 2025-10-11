@@ -19,6 +19,7 @@ export default function StudentLayout() {
                     position: 'absolute',
                     borderWidth: 1,
                     borderColor: '#22c55e',
+                    justifyContent: 'center',
                 },
                 tabBarLabelStyle: {
                     color: '#22c55e',

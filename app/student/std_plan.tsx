@@ -12,6 +12,7 @@ import {
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Ionicons } from "@expo/vector-icons";
+import TimePickerModal from "../../components/TimePickerModal";
 
 export default function TimeTable() {
     const [editModal, setEditModal] = useState(false);
@@ -21,13 +22,17 @@ export default function TimeTable() {
     const [newStartTime, setNewStartTime] = useState("");
     const [newEndTime, setNewEndTime] = useState("");
     const [newSubject, setNewSubject] = useState("");
-
     const [editIndex, setEditIndex] = useState<number | null>(null);
+
+    // Separate Picker States
+    const [showAddStartPicker, setShowAddStartPicker] = useState(false);
+    const [showAddEndPicker, setShowAddEndPicker] = useState(false);
+    const [showEditStartPicker, setShowEditStartPicker] = useState(false);
+    const [showEditEndPicker, setShowEditEndPicker] = useState(false);
 
     const [plan, setPlan] = useState<{ timeStart: string; timeEnd: string; subject: string }[]>([]);
     const [days] = useState(["Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag"]);
     const [dayIndex, setDayIndex] = useState(0);
-
     const currentKey = `plan_${days[dayIndex]}`;
 
     useEffect(() => {
@@ -52,32 +57,23 @@ export default function TimeTable() {
         }
     };
 
-    // ➕ Fach hinzufügen
     const addSubject = async () => {
-        if (!newStartTime.trim() || !newEndTime.trim() || !newSubject.trim()) return;
-
-        const newPlanList = [
-            ...plan,
-            { timeStart: newStartTime, timeEnd: newEndTime, subject: newSubject },
-        ];
-
+        if (!newStartTime || !newEndTime || !newSubject.trim()) return;
+        const newPlanList = [...plan, { timeStart: newStartTime, timeEnd: newEndTime, subject: newSubject }];
         setPlan(newPlanList);
         await savePlan(newPlanList);
-
         setNewStartTime("");
         setNewEndTime("");
         setNewSubject("");
         setAddAlert(false);
     };
 
-    // 🗑️ Fach löschen
     const deleteSubject = async (index: number) => {
         const updatedPlan = plan.filter((_, i) => i !== index);
         setPlan(updatedPlan);
         await savePlan(updatedPlan);
     };
 
-    // ✏️ Fach bearbeiten
     const startEditItem = (index: number) => {
         setEditIndex(index);
         const item = plan[index];
@@ -89,17 +85,10 @@ export default function TimeTable() {
 
     const saveEditedItem = async () => {
         if (editIndex === null) return;
-
         const updated = [...plan];
-        updated[editIndex] = {
-            timeStart: newStartTime,
-            timeEnd: newEndTime,
-            subject: newSubject,
-        };
-
+        updated[editIndex] = { timeStart: newStartTime, timeEnd: newEndTime, subject: newSubject };
         setPlan(updated);
         await savePlan(updated);
-
         setEditIndex(null);
         setEditItemModal(false);
         setNewStartTime("");
@@ -107,17 +96,8 @@ export default function TimeTable() {
         setNewSubject("");
     };
 
-    const dayBefore = () => {
-        if (dayIndex > 0) setDayIndex(dayIndex - 1);
-    };
-
-    const nextDay = () => {
-        if (dayIndex < days.length - 1) setDayIndex(dayIndex + 1);
-    };
-
     const flatListItem = ({ item }: any) => {
         const isPause = item.subject.trim().toLowerCase() === "pause";
-
         if (isPause) {
             return (
                 <View style={styles.pauseContainer}>
@@ -125,14 +105,12 @@ export default function TimeTable() {
                 </View>
             );
         }
-
         return (
             <View style={styles.cardContainer}>
                 <View style={styles.itemLeft}>
                     <Text style={styles.timeTextStart}>{item.timeStart} -</Text>
                     <Text style={styles.timeTextEnd}>{item.timeEnd}</Text>
                 </View>
-
                 <View style={styles.itemRight}>
                     <Text style={styles.itemText}>{item.subject}</Text>
                 </View>
@@ -141,26 +119,28 @@ export default function TimeTable() {
     };
 
     const renderItem = ({ item, index }: any) => (
-        <View style={styles.cardContainer}>
+        <TouchableOpacity style={styles.cardContainer} onLongPress={() => deleteSubject(index)}>
             <View style={styles.itemLeft}>
                 <Text style={styles.timeTextStart}>{item.timeStart} -</Text>
                 <Text style={styles.timeTextEnd}>{item.timeEnd}</Text>
             </View>
-
             <View style={styles.itemRight}>
                 <Text style={styles.itemText}>{item.subject}</Text>
             </View>
-
             <View style={styles.itemButtons}>
                 <TouchableOpacity onPress={() => startEditItem(index)}>
                     <Ionicons name="pencil" size={20} color="#22c55e" />
                 </TouchableOpacity>
-                <TouchableOpacity onPress={() => deleteSubject(index)}>
-                    <Ionicons name="trash" size={20} color="#ef4444" />
-                </TouchableOpacity>
             </View>
-        </View>
+        </TouchableOpacity>
     );
+
+    const dayBefore = () => {
+        if (dayIndex > 0) setDayIndex(dayIndex - 1); };
+
+    const nextDay = () => {
+        if (dayIndex < days.length - 1) setDayIndex(dayIndex + 1); };
+
 
     return (
         <SafeAreaView style={styles.container}>
@@ -182,62 +162,54 @@ export default function TimeTable() {
                 style={styles.planList}
                 data={plan}
                 renderItem={flatListItem}
-                keyExtractor={(_, index) => index.toString()}
+                keyExtractor={(_, i) => i.toString()}
             />
 
             <TouchableOpacity style={styles.edit} onPress={() => setEditModal(true)}>
                 <Ionicons name={"pencil"} style={styles.editIcon} />
             </TouchableOpacity>
 
-            {/* Bearbeiten Modal */}
+            {/* Edit Modal */}
             <Modal transparent animationType="slide" visible={editModal}>
                 <View style={styles.modalOverlay}>
                     <TouchableWithoutFeedback onPress={() => setEditModal(false)}>
                         <View style={StyleSheet.absoluteFillObject} />
                     </TouchableWithoutFeedback>
-
                     <View style={styles.modalContainer}>
                         <Text style={styles.heading}>{days[dayIndex]}</Text>
                         <View style={styles.listCard}>
                             <FlatList
                                 data={plan}
                                 renderItem={renderItem}
-                                keyExtractor={(_, index) => index.toString()}
+                                keyExtractor={(_, i) => i.toString()}
                             />
-                            <TouchableOpacity style={styles.addFab} onPress={() => setAddAlert(true)}>
+                            <TouchableOpacity style={styles.addFab} onPress={() => { setNewStartTime(""), setNewEndTime(""), setNewSubject(""), setAddAlert(true) }}>
                                 <Text style={styles.fabText}>+</Text>
                             </TouchableOpacity>
                         </View>
                     </View>
                 </View>
 
-                {/* Fach hinzufügen Modal */}
+                {/* Add Subject Modal */}
                 <Modal transparent animationType="fade" visible={addAlert}>
                     <View style={styles.alertOverlay}>
                         <TouchableWithoutFeedback onPress={() => setAddAlert(false)}>
                             <View style={StyleSheet.absoluteFillObject} />
                         </TouchableWithoutFeedback>
-
                         <View style={styles.alertContainer}>
                             <Text style={styles.heading}>Neue Stunde</Text>
-
                             <View style={styles.timeRow}>
-                                <TextInput
-                                    style={styles.textInputRow}
-                                    value={newStartTime}
-                                    onChangeText={setNewStartTime}
-                                    placeholder="Startzeit"
-                                    placeholderTextColor="#22c55e"
-                                />
-                                <TextInput
-                                    style={styles.textInputRow}
-                                    value={newEndTime}
-                                    onChangeText={setNewEndTime}
-                                    placeholder="Endzeit"
-                                    placeholderTextColor="#22c55e"
-                                />
+                                <TouchableOpacity style={styles.textInputRow} onPress={() => setShowAddStartPicker(true)}>
+                                    <Text style={{ color: "#22c55e", textAlign: "center" }}>
+                                        {newStartTime || "Startzeit wählen"}
+                                    </Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity style={styles.textInputRow} onPress={() => setShowAddEndPicker(true)}>
+                                    <Text style={{ color: "#22c55e", textAlign: "center" }}>
+                                        {newEndTime || "Endzeit wählen"}
+                                    </Text>
+                                </TouchableOpacity>
                             </View>
-
                             <TextInput
                                 style={styles.textInput}
                                 value={newSubject}
@@ -245,46 +217,45 @@ export default function TimeTable() {
                                 placeholder="Fach"
                                 placeholderTextColor="#22c55e"
                             />
-
                             <TouchableOpacity style={styles.addButton} onPress={addSubject}>
                                 <Text style={styles.buttonText}>Hinzufügen</Text>
                             </TouchableOpacity>
                         </View>
                     </View>
+
+                    {/* TimePickers */}
+                    <TimePickerModal
+                        visible={showAddStartPicker}
+                        onClose={() => setShowAddStartPicker(false)}
+                        onConfirm={(time) => setNewStartTime(time)}
+                    />
+                    <TimePickerModal
+                        visible={showAddEndPicker}
+                        onClose={() => setShowAddEndPicker(false)}
+                        onConfirm={(time) => setNewEndTime(time)}
+                    />
                 </Modal>
 
-                {/* Fach bearbeiten Modal */}
+                {/* Edit Subject Modal */}
                 <Modal transparent animationType="fade" visible={editItemModal}>
                     <View style={styles.alertOverlay}>
-                        <TouchableWithoutFeedback
-                            onPress={() => {
-                                setEditItemModal(false);
-                                saveEditedItem();
-                            }}
-                        >
+                        <TouchableWithoutFeedback onPress={() => setEditItemModal(false)}>
                             <View style={StyleSheet.absoluteFillObject} />
                         </TouchableWithoutFeedback>
-
                         <View style={styles.alertContainer}>
                             <Text style={styles.heading}>Stunde bearbeiten</Text>
-
                             <View style={styles.timeRow}>
-                                <TextInput
-                                    style={styles.textInputRow}
-                                    value={newStartTime}
-                                    onChangeText={setNewStartTime}
-                                    placeholder="Startzeit"
-                                    placeholderTextColor="#22c55e"
-                                />
-                                <TextInput
-                                    style={styles.textInputRow}
-                                    value={newEndTime}
-                                    onChangeText={setNewEndTime}
-                                    placeholder="Endzeit"
-                                    placeholderTextColor="#22c55e"
-                                />
+                                <TouchableOpacity style={styles.textInputRow} onPress={() => setShowEditStartPicker(true)}>
+                                    <Text style={{ color: "#22c55e", textAlign: "center" }}>
+                                        {newStartTime || "Startzeit wählen"}
+                                    </Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity style={styles.textInputRow} onPress={() => setShowEditEndPicker(true)}>
+                                    <Text style={{ color: "#22c55e", textAlign: "center" }}>
+                                        {newEndTime || "Endzeit wählen"}
+                                    </Text>
+                                </TouchableOpacity>
                             </View>
-
                             <TextInput
                                 style={styles.textInput}
                                 value={newSubject}
@@ -292,12 +263,22 @@ export default function TimeTable() {
                                 placeholder="Fach"
                                 placeholderTextColor="#22c55e"
                             />
-
                             <TouchableOpacity style={styles.addButton} onPress={saveEditedItem}>
                                 <Text style={styles.buttonText}>Speichern</Text>
                             </TouchableOpacity>
                         </View>
                     </View>
+
+                    <TimePickerModal
+                        visible={showEditStartPicker}
+                        onClose={() => setShowEditStartPicker(false)}
+                        onConfirm={(time) => setNewStartTime(time)}
+                    />
+                    <TimePickerModal
+                        visible={showEditEndPicker}
+                        onClose={() => setShowEditEndPicker(false)}
+                        onConfirm={(time) => setNewEndTime(time)}
+                    />
                 </Modal>
 
             </Modal>
@@ -306,8 +287,6 @@ export default function TimeTable() {
         </SafeAreaView>
     );
 }
-
-
 
 const styles = StyleSheet.create({
     container: {

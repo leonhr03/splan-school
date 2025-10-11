@@ -12,8 +12,10 @@ export default function Index() {
             const role = await AsyncStorage.getItem("role");
             if (role === "student") {
                 router.replace("/student/home");
-            } else {
-                // kein Login → bei Step 1 starten
+            } else if (role === "teacher") {
+                router.replace("/teacher/home")
+            }
+            else {
                 setStep(1);
             }
         };
@@ -24,6 +26,11 @@ export default function Index() {
         await AsyncStorage.setItem("role", "student");
         router.replace("/student/home");
     };
+
+    const teacher  = async () => {
+        await AsyncStorage.setItem("role", "teacher");
+        router.replace("/teacher/home")
+    }
 
     // während der Prüfung nichts anzeigen
     if (step === null) {
@@ -80,7 +87,7 @@ export default function Index() {
                         <TouchableOpacity style={styles.chooseButton} onPress={student}>
                             <Text style={styles.buText}>🎓 Student</Text>
                         </TouchableOpacity>
-                        <TouchableOpacity style={styles.chooseButton}>
+                        <TouchableOpacity style={styles.chooseButton} onPress={teacher}>
                             <Text style={styles.buText}>👨‍🏫 Teacher</Text>
                         </TouchableOpacity>
                     </View>
@@ -115,6 +122,7 @@ const styles = StyleSheet.create({
         color: "#e5e5e5",
         textAlign: "center",
         lineHeight: 24,
+        marginHorizontal: 10,
     },
     buText: {
         fontSize: 20,
