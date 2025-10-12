@@ -1,16 +1,95 @@
-import React, {useState} from "react"
-import {FlatList, SafeAreaView, StyleSheet, Text, TouchableOpacity, View} from "react-native";
+import React, {useEffect, useState} from "react"
+import {
+    FlatList,
+    Modal,
+    SafeAreaView,
+    StyleSheet,
+    Text, TextInput,
+    TouchableOpacity,
+    TouchableWithoutFeedback,
+    View
+} from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import {useRouter} from "expo-router";
 
 export default function TeacherHome() {
 
+    const router = useRouter();
     const [avrGes, setAvrGes] = useState("--")
-    const [classList, setClassList] = useState([{class: "10b"}])
+    const [classList, setClassList] = useState<{class: string}[]>([])
+    const [newClass, setNewClass] = useState("")
+    const [currentClass, setCurrentClass] = useState("")
+    const [subjects, setSubjects] = useState<{subject: string}[]>([])
+    const [newSubject, setNewSubject] = useState("")
+
+    // alerts
+    const [addAlert, setAddAlert] = useState(false)
+    const [addSubjectAlert, setAddSubjectAlert] = useState(false)
+    const [addSubjectSheet, setAddSubjectSheet] = useState(false)
+
+    useEffect(() => {
+        const Load = async () => {
+            const StoredClassList = await AsyncStorage.getItem("ClassList")
+            if (StoredClassList != null) {
+                setClassList(JSON.parse(StoredClassList))
+            }
+        }
+        Load()
+    })
+
+    const addClass = async () => {
+        if (!newClass) return;
+        const StoredClassList = await AsyncStorage.getItem("ClassList")
+        const newStoredClassList = [...classList, {class: newClass.trim()}]
+        await AsyncStorage.setItem("ClassList", JSON.stringify(newStoredClassList))
+        setNewClass("")
+        setAddAlert(false)
+    }
+
+    const addSubject = async () => {
+        try {
+            const stored = await AsyncStorage.getItem(`SubjectsList/${currentClass}`)
+            const parsed = stored ? JSON.parse(stored) : []
+            const updated = [...parsed, { subject: newSubject }]
+            await AsyncStorage.setItem(`SubjectsList/${currentClass}`, JSON.stringify(updated))
+            setNewSubject("")
+            setAddSubjectAlert(false)
+            setSubjects(updated)
+        } catch (err) {
+            console.error("Error while adding subject:", err)
+        }
+    }
 
     const renderItem = ({item}: any) => {
         return(
             <View style={styles.itemContainer}>
-                <TouchableOpacity style={styles.border}>
+                <TouchableOpacity style={styles.border} onPress={async () => {
+                    setCurrentClass(item.class)
+                    const storedSubjectsList: any = await AsyncStorage.getItem(`SubjectsList/${item.class}`)
+                    const parsed = storedSubjectsList ? JSON.parse(storedSubjectsList) : []
+                    setSubjects(parsed)
+                    setAddSubjectSheet(true)
+                }}>
                     <Text style={styles.text}>{item.class}</Text>
+                </TouchableOpacity>
+
+            </View>
+        )
+    }
+
+    const subjectsListItem = ({item}: any) => {
+        return(
+            <View style={styles.itemContainer}>
+                <TouchableOpacity
+                    style={styles.border}
+                    onPress={() =>
+                        router.replace({
+                            pathname: "/pagesTeacher/students",
+                            params: { subject: `${currentClass} - ${item.subject}` }
+                        })
+                    }
+                >
+                    <Text style={styles.text}>{item.subject}</Text>
                 </TouchableOpacity>
 
             </View>
@@ -27,9 +106,73 @@ export default function TeacherHome() {
                 renderItem={renderItem}
                 keyExtractor={(item) => item.class}/>
 
-            <TouchableOpacity style={styles.addFab}>
+            <TouchableOpacity style={styles.addFab} onPress={() => setAddAlert(true)}>
                 <Text style={styles.fabText}>+</Text>
             </TouchableOpacity>
+
+            {/*add Alert*/}
+            <Modal transparent animationType={"fade"} visible={addAlert}>
+                <TouchableOpacity style={styles.modalOverlay} onPress={() => setAddAlert(false)}>
+                    <TouchableWithoutFeedback onPress={() => {}}>
+                        <View style={styles.addAlertContainer} >
+                            <Text style={styles.addAlertHeading}>Hinzufügen</Text>
+                            <TextInput
+                                style={styles.addAlertTextInput}
+                                value={newClass}
+                                onChangeText={setNewClass}
+                                placeholder={"Klasse"}
+                                placeholderTextColor={"#22c55e"}/>
+
+                            <TouchableOpacity style={styles.addAlertButton} onPress={addClass}>
+                                <Text style={styles.addAlertButtonText}>Hinzufügen</Text>
+                            </TouchableOpacity>
+                        </View>
+                    </TouchableWithoutFeedback>
+                </TouchableOpacity>
+            </Modal>
+
+            {/*add Subjects*/}
+            <Modal transparent animationType={"slide"} visible={addSubjectSheet}>
+                <TouchableOpacity style={styles.modalSheetOverlay} onPress={() => setAddSubjectSheet(false)}>
+                    <TouchableWithoutFeedback onPress={() => {}}>
+                        <View style={styles.addSubjectSheetContainer}>
+                            <Text style={styles.addAlertHeading}>{currentClass}</Text>
+                            <View style={styles.listCard}>
+                                <FlatList
+                                    data={subjects}
+                                    renderItem={subjectsListItem}
+                                    keyExtractor={(_, i) => i.toString()}
+                                />
+                                <TouchableOpacity style={styles.addFabAlert} onPress={() => setAddSubjectAlert(true)}>
+                                    <Text style={styles.fabTextAlert}>+</Text>
+                                </TouchableOpacity>
+                            </View>
+                        </View>
+                    </TouchableWithoutFeedback>
+                </TouchableOpacity>
+
+
+                {/*add Alert*/}
+                <Modal transparent animationType={"fade"} visible={addSubjectAlert}>
+                    <TouchableOpacity style={styles.modalOverlay} onPress={() => setAddSubjectAlert(false)}>
+                        <TouchableWithoutFeedback onPress={() => {}}>
+                            <View style={styles.addAlertContainer} >
+                                <Text style={styles.addAlertHeading}> Fach Hinzufügen</Text>
+                                <TextInput
+                                    style={styles.addAlertTextInput}
+                                    value={newSubject}
+                                    onChangeText={setNewSubject}
+                                    placeholder={"Fach"}
+                                    placeholderTextColor={"#22c55e"}/>
+
+                                <TouchableOpacity style={styles.addAlertButton} onPress={addSubject}>
+                                    <Text style={styles.addAlertButtonText}>Hinzufügen</Text>
+                                </TouchableOpacity>
+                            </View>
+                        </TouchableWithoutFeedback>
+                    </TouchableOpacity>
+                </Modal>
+            </Modal>
         </SafeAreaView>
     )
 }
@@ -58,6 +201,7 @@ const styles = StyleSheet.create({
     itemContainer: {
         flex: 1,
         justifyContent: "center",
+        marginBottom: 20,
     },
 
     border: {
@@ -95,6 +239,101 @@ const styles = StyleSheet.create({
 
     fabText: {
         fontSize: 22,
+        color: "#fff"
+    },
+
+    modalOverlay: {
+        flex: 1,
+        justifyContent: "center",
+        alignItems: "center",
+        backgroundColor: "rgba(0,0,0,0.6)"
+    },
+
+    modalSheetOverlay: {
+        flex: 1,
+        justifyContent: "flex-end",
+        alignItems: "center",
+        backgroundColor: "rgba(0,0,0,0.6)"
+    },
+
+    addAlertContainer: {
+        width: "95%",
+        alignItems: "center",
+        backgroundColor: "#111111",
+        borderRadius: 15
+    },
+
+    addAlertHeading: {
+        fontSize: 25,
+        color: "#22c55e",
+        marginTop: 20,
+        marginBottom: 20,
+        fontWeight: "bold",
+    },
+
+    addAlertTextInput: {
+        backgroundColor: "#111",
+        borderColor: "#22c55e",
+        borderRadius: 15,
+        borderWidth: 2,
+        padding: 14,
+        width: "80%",
+        color: "#fff",
+    },
+
+    addAlertButton: {
+        backgroundColor: "#22c55e",
+        borderRadius: 15,
+        height: 50,
+        alignItems: "center",
+        justifyContent: "center",
+        padding: 10,
+        marginTop: 20,
+        marginBottom: 20,
+    },
+
+    addAlertButtonText: {
+        fontSize: 20,
+        color: "#ffffff",
+        fontWeight: "bold",
+    },
+
+    addSubjectSheetContainer: {
+        width: "100%",
+        justifyContent: "flex-start",
+        alignItems: "center",
+        flexDirection: "column",
+        backgroundColor: "#111111",
+        borderTopLeftRadius: 15,
+        borderTopRightRadius: 15,
+        padding: 16,
+    },
+
+    listCard: {
+        borderWidth: 2,
+        borderColor: "#22c55e",
+        borderRadius: 15,
+        padding: 10,
+        width: "95%",
+        height: 300,
+        marginTop: 20,
+        marginBottom: 60,
+    },
+
+    addFabAlert: {
+        position: "absolute",
+        right: 10,
+        bottom: 10,
+        backgroundColor: "#22c55e",
+        height: 50,
+        width: 50,
+        borderRadius: 25,
+        alignItems: "center",
+        justifyContent: "center",
+    },
+
+    fabTextAlert: {
+        fontSize: 20,
         color: "#fff"
     },
 })
