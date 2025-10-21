@@ -21,11 +21,15 @@ export default function TeacherHome() {
     const [currentClass, setCurrentClass] = useState("")
     const [subjects, setSubjects] = useState<{subject: string}[]>([])
     const [newSubject, setNewSubject] = useState("")
+    const [deleteType, setDeleteType] = useState<"class" | "subject" | null>(null);
+    const [deleteIndex, setDeleteIndex] = useState<number | null>(null);
+    const [deleteName, setDeleteName] = useState<string>("");
 
     // alerts
     const [addAlert, setAddAlert] = useState(false)
     const [addSubjectAlert, setAddSubjectAlert] = useState(false)
     const [addSubjectSheet, setAddSubjectSheet] = useState(false)
+    const [deleteModalVisible, setDeleteModalVisible] = useState(false);
 
     useEffect(() => {
         const Load = async () => {
@@ -60,10 +64,47 @@ export default function TeacherHome() {
         }
     }
 
-    const renderItem = ({item}: any) => {
+    const deleteItem = (index: number, name: string) => {
+        setDeleteType("class");
+        setDeleteIndex(index);
+        setDeleteName(name);
+        setDeleteModalVisible(true);
+    };
+
+    const deleteSubject = (index: number, name: string) => {
+        setDeleteType("subject");
+        setDeleteIndex(index);
+        setDeleteName(name);
+        setDeleteModalVisible(true);
+    };
+
+    const confirmDelete = async () => {
+        if (deleteType === "class" && deleteIndex !== null) {
+            const newList = [...classList];
+            const removed = newList.splice(deleteIndex, 1)[0];
+            setClassList(newList);
+            await AsyncStorage.setItem("ClassList", JSON.stringify(newList));
+            // Optional: alle Fächer der gelöschten Klasse löschen
+            await AsyncStorage.removeItem(`SubjectsList/${removed.class}`);
+        }
+
+        if (deleteType === "subject" && deleteIndex !== null && currentClass) {
+            const newList = [...subjects];
+            newList.splice(deleteIndex, 1);
+            setSubjects(newList);
+            await AsyncStorage.setItem(`SubjectsList/${currentClass}`, JSON.stringify(newList));
+        }
+
+        setDeleteModalVisible(false);
+        setDeleteIndex(null);
+        setDeleteType(null);
+        setDeleteName("");
+    };
+
+    const renderItem = ({item, index}: any) => {
         return(
             <View style={styles.itemContainer}>
-                <TouchableOpacity style={styles.border} onPress={async () => {
+                <TouchableOpacity style={styles.border} onLongPress={() => deleteItem(index, item.class)} onPress={async () => {
                     setCurrentClass(item.class)
                     const storedSubjectsList: any = await AsyncStorage.getItem(`SubjectsList/${item.class}`)
                     const parsed = storedSubjectsList ? JSON.parse(storedSubjectsList) : []
@@ -77,11 +118,12 @@ export default function TeacherHome() {
         )
     }
 
-    const subjectsListItem = ({item}: any) => {
-        return(
+    const subjectsListItem = ({item, index}: any) => {
+        return (
             <View style={styles.itemContainer}>
                 <TouchableOpacity
                     style={styles.border}
+                    onLongPress={() => deleteSubject(index, item.subject)}
                     onPress={() =>
                         router.replace({
                             pathname: "/pagesTeacher/students",
@@ -91,7 +133,6 @@ export default function TeacherHome() {
                 >
                     <Text style={styles.text}>{item.subject}</Text>
                 </TouchableOpacity>
-
             </View>
         )
     }
@@ -99,7 +140,6 @@ export default function TeacherHome() {
     return (
         <SafeAreaView style={styles.container}>
             <Text style={styles.heading}>Splan for Teachers</Text>
-            <Text style={styles.avrText}>{"Ø "} {avrGes}</Text>
             <FlatList
                 style={styles.classList}
                 data={classList}
@@ -132,7 +172,7 @@ export default function TeacherHome() {
             </Modal>
 
             {/*add Subjects*/}
-            <Modal transparent animationType={"slide"} visible={addSubjectSheet}>
+            <Modal transparent animationType={"slide"} visible={addSubjectSheet}  pointerEvents="box-none">
                 <TouchableOpacity style={styles.modalSheetOverlay} onPress={() => setAddSubjectSheet(false)}>
                     <TouchableWithoutFeedback onPress={() => {}}>
                         <View style={styles.addSubjectSheetContainer}>
@@ -150,6 +190,31 @@ export default function TeacherHome() {
                         </View>
                     </TouchableWithoutFeedback>
                 </TouchableOpacity>
+
+                <Modal transparent animationType="fade" visible={deleteModalVisible}>
+                    <View style={styles.modalOverlay}>
+                        <View style={styles.addAlertContainer}>
+                            <Text style={styles.addAlertHeading}>Löschen bestätigen</Text>
+                            <Text style={{color: "#fff", fontSize: 18, marginVertical: 10}}>
+                                Willst du wirklich {deleteName} löschen?
+                            </Text>
+                            <View style={{flexDirection: "row", marginTop: 10}}>
+                                <TouchableOpacity
+                                    style={[styles.addAlertButton, {backgroundColor: "#333", marginRight: 10}]}
+                                    onPress={() => setDeleteModalVisible(false)}
+                                >
+                                    <Text style={styles.addAlertButtonText}>Abbrechen</Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity
+                                    style={[styles.addAlertButton, {backgroundColor: "#e11d48"}]}
+                                    onPress={confirmDelete}
+                                >
+                                    <Text style={styles.addAlertButtonText}>Löschen</Text>
+                                </TouchableOpacity>
+                            </View>
+                        </View>
+                    </View>
+                </Modal>
 
 
                 {/*add Alert*/}
@@ -172,6 +237,32 @@ export default function TeacherHome() {
                         </TouchableWithoutFeedback>
                     </TouchableOpacity>
                 </Modal>
+            </Modal>
+
+
+            <Modal transparent animationType="fade" visible={deleteModalVisible}>
+                <View style={styles.modalOverlay}>
+                    <View style={styles.addAlertContainer}>
+                        <Text style={styles.addAlertHeading}>Löschen bestätigen</Text>
+                        <Text style={{color: "#fff", fontSize: 18, marginVertical: 10}}>
+                            Willst du wirklich {deleteName} löschen?
+                        </Text>
+                        <View style={{flexDirection: "row", marginTop: 10}}>
+                            <TouchableOpacity
+                                style={[styles.addAlertButton, {backgroundColor: "#333", marginRight: 10}]}
+                                onPress={() => setDeleteModalVisible(false)}
+                            >
+                                <Text style={styles.addAlertButtonText}>Abbrechen</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                                style={[styles.addAlertButton, {backgroundColor: "#e11d48"}]}
+                                onPress={confirmDelete}
+                            >
+                                <Text style={styles.addAlertButtonText}>Löschen</Text>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                </View>
             </Modal>
         </SafeAreaView>
     )

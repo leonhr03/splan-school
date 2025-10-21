@@ -32,7 +32,7 @@ export default function Index() {
         router.replace("/teacher/home")
     }
 
-    // während der Prüfung nichts anzeigen
+
     if (step === null) {
         return <SafeAreaView style={styles.container} />;
     }
