@@ -265,7 +265,7 @@ const styles = StyleSheet.create({
         alignItems: "center",
         justifyContent: "center",
         marginTop: 20,
-        marginBottom: 10,
+        marginBottom: 40,
     },
     heading: { fontSize: 26, fontWeight: "bold", color: "#22c55e", textAlign: "center", flex: 1 },
     row: { flexDirection: "row" },

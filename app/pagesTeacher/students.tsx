@@ -153,10 +153,6 @@ export default function Students() {
                                               }>
                                 <Text style={styles.chooseText}>Noten</Text>
                             </TouchableOpacity>
-                            <TouchableOpacity style={[styles.chooseItem, {backgroundColor: "#e11d48"}]}
-                                              onPress={() => { setChooseAction(false); deleteStudent(students.findIndex(s => s.student === currentStudent), currentStudent); }}>
-                                <Text style={styles.chooseText}>Löschen</Text>
-                            </TouchableOpacity>
                         </View>
                     </TouchableWithoutFeedback>
                 </TouchableOpacity>

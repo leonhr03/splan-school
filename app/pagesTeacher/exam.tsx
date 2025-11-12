@@ -524,7 +524,7 @@ const styles = StyleSheet.create({
 
     card: {
         width: screenWidth * 0.85,
-        height: screenHeight * 0.7,
+        height: screenHeight * 0.6,
         borderWidth: 2,
         borderColor: "#22c55e",
         borderRadius: 15,
