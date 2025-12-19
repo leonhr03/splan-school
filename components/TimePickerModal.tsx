@@ -121,8 +121,8 @@ const TimePickerModal: React.FC<Props> = ({ visible, onClose, onConfirm, initial
 export default TimePickerModal;
 
 const styles = StyleSheet.create({
-    overlay: { flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: "rgba(0,0,0,0.5)" },
-    container: { backgroundColor: "#111", width: "80%", borderRadius: 20, padding: 20, alignItems: "center" },
+    overlay: { flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: "rgba(0,0,0,0.3)" },
+    container: { backgroundColor: "#0d1d1f", width: "80%", borderRadius: 20, padding: 20, alignItems: "center" },
     heading: { color: "#22c55e", fontSize: 20, marginBottom: 10 },
     pickersRow: { flexDirection: "row", justifyContent: "space-between", width: "100%" },
     picker: { flex: 1, height: ITEM_HEIGHT * 3, maxHeight: ITEM_HEIGHT * 3 },

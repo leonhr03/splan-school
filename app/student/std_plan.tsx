@@ -150,11 +150,11 @@ export default function TimeTable() {
 
             <View style={styles.topRow}>
                 <TouchableOpacity style={styles.buttonLeft} onPress={dayBefore}>
-                    <Text style={styles.changeDayButtonText}>{"<-"}</Text>
+                   <Ionicons name={"arrow-back"} color={"#fff"} size={20} />
                 </TouchableOpacity>
                 <Text style={styles.dayText}>{days[dayIndex]}</Text>
                 <TouchableOpacity style={styles.buttonRight} onPress={nextDay}>
-                    <Text style={styles.changeDayButtonText}>{"->"}</Text>
+                  <Ionicons name={"arrow-forward"} color={"#fff"} size={20} />
                 </TouchableOpacity>
             </View>
 
@@ -292,7 +292,7 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         padding: 16,
-        backgroundColor: "#000000",
+        backgroundColor: "#0d1d1f",
         alignItems: "center",
     },
 
@@ -346,7 +346,8 @@ const styles = StyleSheet.create({
         marginBottom: 20,
         width: "95%",
         borderWidth: 2,
-        borderColor: "#22c55e",
+        borderColor: "#0d4d4f",
+        backgroundColor: "#0d2d2f",
         borderRadius: 20,
         padding: 10,
     },
@@ -379,11 +380,6 @@ const styles = StyleSheet.create({
         justifyContent: "center",
     },
 
-    changeDayButtonText: {
-        color: "#ffffff",
-        fontSize: 20,
-    },
-
     planList: {
         marginBottom: 70,
     },
@@ -398,7 +394,8 @@ const styles = StyleSheet.create({
         height: 60,
         width: "95%",
         marginVertical: 10,
-        borderColor: "#22c55e",
+        borderColor: "#0d4d4f",
+        backgroundColor: "#0d2d2f",
         borderRadius: 30,
         padding: 10,
 
@@ -433,7 +430,7 @@ const styles = StyleSheet.create({
 
     modalOverlay: {
         flex: 1,
-        backgroundColor: "rgba(0, 0, 0, 0.1)",
+        backgroundColor: "rgba(0, 0, 0, 0.3)",
         alignItems: "center",
         justifyContent: "flex-end",
     },
@@ -443,7 +440,8 @@ const styles = StyleSheet.create({
         alignItems: "center",
         justifyContent: "flex-end",
         width: "100%",
-        backgroundColor: "#111111",
+        backgroundColor: "#0d1d1f",
+        borderColor: "#0d3d3f",
         padding: 16,
         borderTopLeftRadius: 20,
         borderTopRightRadius: 20,
@@ -489,7 +487,8 @@ const styles = StyleSheet.create({
         alignItems: "center",
         justifyContent: "center",
         width: "95%",
-        backgroundColor: "#111111",
+        backgroundColor: "#0d1d1f",
+        borderColor: "#0d3d3f",
         padding: 16,
         borderRadius: 20,
     },
@@ -505,7 +504,8 @@ const styles = StyleSheet.create({
         color: "#22c55e",
         borderRadius: 20,
         borderWidth: 2,
-        borderColor: "#22c55e",
+        borderColor: "#0d4d4f",
+        backgroundColor: "#0d2d2f",
         width: "45%",
         marginHorizontal: 5,
         marginTop: 20,
@@ -516,7 +516,8 @@ const styles = StyleSheet.create({
         color: "#22c55e",
         borderRadius: 20,
         borderWidth: 2,
-        borderColor: "#22c55e",
+        borderColor: "#0d4d4f",
+        backgroundColor: "#0d2d2f",
         width: "95%",
         marginHorizontal: 5,
         marginTop: 20,

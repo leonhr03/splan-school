@@ -11,14 +11,15 @@ export default function StudentLayout() {
                 tabBarStyle: {
                     borderRadius: 30,
                     height: 60,
-                    backgroundColor: '#060606',
+                    backgroundColor: '#0d2d2f',
                     marginBottom: 25,
                     marginLeft: 10,
                     marginRight: 10,
                     padding: 20,
                     position: 'absolute',
                     borderWidth: 1,
-                    borderColor: '#22c55e',
+                    borderTopWidth: 1,
+                    borderColor: '#0d4d4f',
                     justifyContent: 'center',
                 },
                 tabBarLabelStyle: {

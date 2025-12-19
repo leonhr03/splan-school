@@ -11,17 +11,22 @@ import {
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import {useRouter} from "expo-router";
+import {Ionicons} from "@expo/vector-icons";
 
 export default function HomeStudent() {
     const router = useRouter();
     const [addAlert, setAddAlert] = useState(false);
+    const [searchAlert, setSearchAlert] = useState(false);
     const [deleteAlert, setDeleteAlert] = useState(false);
     const [subjectToDelete, setSubjectToDelete] = useState<string | null>(null);
+    const [searchSubjects, setSearchSubjects] = useState("");
 
     const [newSubject, setNewSubject] = useState("");
     const [subjects, setSubjects] = useState<{ subject: string; avr: string }[]>([]);
     const [avrGesMap, setAvrGesMap] = useState<{ [key: string]: string }>({});
     const [overallAverage, setOverallAverage] = useState<string>("-");
+    const filteredSubjects = subjects.filter(s => s.subject.toLowerCase().includes(searchSubjects.toLowerCase()));
+
 
     const calculateOverallAverage = (list: { avr: string }[]) => {
         const numericAvrs = list
@@ -132,22 +137,29 @@ export default function HomeStudent() {
 
     return (
         <SafeAreaView style={styles.container}>
-            <Text style={styles.heading}>Splan for Students</Text>
+            <View style={styles.header}>
+                <TouchableOpacity style={styles.addButtonTop} onPress={() => setAddAlert(true)}>
+                    <Ionicons name="add" size={30} color="#22c55e" />
+                </TouchableOpacity>
+                <Text style={styles.heading}>Splan for Students</Text>
+                <TouchableOpacity style={styles.searchButton} onPress={() => setSearchAlert(true)}>
+                    <Ionicons name="search" size={26} color="#22c55e" />
+                </TouchableOpacity>
+            </View>
             <Text style={styles.text}>{"Ø "} {overallAverage}</Text>
+
+
 
             <FlatList
                 style={styles.list}
                 data={subjects}
                 renderItem={renderItem}
                 keyExtractor={(item) => item.subject}
+                contentContainerStyle={{paddingBottom: 80}}
             />
 
-            <TouchableOpacity style={styles.button} onPress={() => setAddAlert(true)}>
-                <Text style={styles.buText}>+</Text>
-            </TouchableOpacity>
-
             {/* Add Modal */}
-            <Modal transparent animationType="slide" visible={addAlert}>
+            <Modal transparent animationType="fade" visible={addAlert}>
                 <TouchableOpacity
                     style={styles.sheetOverlay}
                     activeOpacity={1}
@@ -158,13 +170,13 @@ export default function HomeStudent() {
                         style={styles.sheetsContainer}
                         onPress={() => {}}
                     >
-                        <Text style={styles.heading}>Add A Subject</Text>
+                        <Text style={[styles.heading, {marginTop: 20}]}>Add A Subject</Text>
                         <TextInput
                             value={newSubject}
                             onChangeText={setNewSubject}
                             style={styles.textInput}
                             placeholder="Subject"
-                            placeholderTextColor="#fff"
+                            placeholderTextColor="#0d4d4f"
                         />
                         <TouchableOpacity
                             style={styles.addButton}
@@ -201,14 +213,66 @@ export default function HomeStudent() {
                     </View>
                 </View>
             </Modal>
+
+            <Modal transparent animationType="fade" visible={searchAlert} onRequestClose={() => setAddAlert(false)}>
+                <TouchableOpacity
+                    style={styles.searchOverlay}
+                    activeOpacity={1}
+                    onPress={() => setSearchAlert(false)}
+                >
+                    <View>
+                        <TextInput
+                            style={styles.searchInput}
+                            value={searchSubjects}
+                            onChangeText={setSearchSubjects}
+                            placeholder={"Search..."}
+                            placeholderTextColor={"#0d4d4f"}
+                        />
+
+                        <FlatList
+                            style={styles.list}
+                            data={filteredSubjects}
+                            renderItem={renderItem}
+                            keyExtractor={(item) => item.subject}
+                            contentContainerStyle={{paddingBottom: 80}}
+                        />
+                    </View>
+                </TouchableOpacity>
+            </Modal>
         </SafeAreaView>
     );
 }
 
 const styles = StyleSheet.create({
-    container: { flex: 1, padding: 16, backgroundColor: "#000", alignItems: "center" },
-    heading: { fontSize: 26, fontWeight: "bold", color: "#22c55e", marginTop: 20 },
+    container: { flex: 1, padding: 16, backgroundColor: "#0d1d1f", alignItems: "center" },
+    searchButton: {
+        position: "absolute",
+        right: 10,
+        padding: 8,
+    },
+
+    addButtonTop: {
+        position: "absolute",
+        left: 10,
+        padding: 8,
+    },
+
+    heading: {
+        fontSize: 26,
+        fontWeight: "bold",
+        color: "#22c55e",
+        textAlign: "center",
+    },
     buText: { fontSize: 22, color: "#fff" },
+    header: {
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "center",
+        marginTop: 20,
+        paddingHorizontal: 16,
+        position: "relative",
+        width: "100%",
+    },
     text: {
         marginVertical: 20,
         fontSize: 25,
@@ -216,17 +280,24 @@ const styles = StyleSheet.create({
         textAlign: "center",
         lineHeight: 24,
     },
+
     item: {
+        alignSelf: "center",
         flexDirection: "row",
         justifyContent: "space-between",
-        width: "100%",
+        width: "90%",
         marginVertical: 10,
         paddingHorizontal: 16,
+        padding: 10,
+        backgroundColor: "#0d2d2f",
+        borderColor: "#0d5d5f",
+        borderRadius: 15,
+        borderWidth: 2,
     },
     itemLeft: {
         flex: 1,
-        backgroundColor: "#060606",
-        borderColor: "#22c55e",
+        backgroundColor: "#0d3d3f",
+        borderColor: "#0d4d4f",
         borderRadius: 25,
         borderWidth: 2,
         height: 50,
@@ -235,12 +306,12 @@ const styles = StyleSheet.create({
         justifyContent: "center",
     },
     itemRight: {
-        backgroundColor: "#060606",
+        backgroundColor: "#0d3d3f",
         height: 50,
         width: 50,
         borderRadius: 25,
         borderWidth: 2,
-        borderColor: "#22c55e",
+        borderColor: "#0d4d4f",
         marginLeft: 10,
         alignItems: "center",
         justifyContent: "center",
@@ -266,7 +337,7 @@ const styles = StyleSheet.create({
     },
 
     sheetsContainer: {
-        backgroundColor: "#111",
+        backgroundColor: "#012d2f",
         borderRadius: 20,
         width: "90%",
         alignItems: "center",
@@ -274,7 +345,7 @@ const styles = StyleSheet.create({
 
     textInput: {
         marginTop: 50,
-        backgroundColor: "#111",
+        backgroundColor: "#0d3d3f",
         borderColor: "#22c55e",
         borderRadius: 15,
         borderWidth: 2,
@@ -282,6 +353,7 @@ const styles = StyleSheet.create({
         width: "80%",
         color: "#fff",
     },
+
     addButton: {
         marginTop: 40,
         marginBottom: 20,
@@ -327,4 +399,23 @@ const styles = StyleSheet.create({
     },
     cancelText: { color: "#fff", fontSize: 16, fontWeight: "600" },
     deleteTextButton: { color: "#fff", fontSize: 16, fontWeight: "600" },
+
+    searchOverlay: {
+        flex: 1,
+        backgroundColor: "rgba(0,0,0,0.8)",
+        alignItems: "center",
+        paddingTop: 160,
+    },
+
+    searchInput: {
+        minWidth: "90%",
+        maxWidth: "90%",
+        padding: 10,
+        borderRadius: 25,
+        backgroundColor: "#0d3d3f",
+        borderColor: "#0d4d4f",
+        borderWidth: 2,
+        color: "#fff",
+        marginBottom: 10,
+    },
 });

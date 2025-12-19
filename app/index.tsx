@@ -1,11 +1,24 @@
 import React, {useEffect, useState} from "react"
-import {SafeAreaView, Text, TouchableOpacity, View, StyleSheet, Modal} from "react-native";
+import {
+    SafeAreaView,
+    Text,
+    TouchableOpacity,
+    View,
+    StyleSheet,
+    Modal,
+    Platform,
+    useWindowDimensions
+} from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import {useRouter} from "expo-router";
+import * as Progress from "react-native-progress";
+
+
 
 export default function Index() {
     const router = useRouter();
     const [step, setStep] = useState<number | null>(null); // null = noch prüfen
+    const width = useWindowDimensions();
 
     useEffect(() => {
         const checkLogin = async () => {
@@ -19,6 +32,7 @@ export default function Index() {
                 setStep(1);
             }
         };
+
         checkLogin();
     }, []);
 
@@ -40,8 +54,18 @@ export default function Index() {
     return (
         <SafeAreaView style={styles.container}>
             {/* Info Page 1 */}
-            <Modal animationType="slide" visible={step === 1}>
+            { step === 1 && (
                 <SafeAreaView style={styles.page}>
+                    <View style={styles.progressView}>
+                        <Progress.Bar
+                            progress={0.25}
+                            color={"#22c55e"}
+                            unfilledColor={"#0d1d1f"}
+                            width={width.width * 0.8}
+                            height={10}
+                            borderRadius={15}
+                        />
+                    </View>
                     <Text style={styles.heading}>👋 Welcome to Splan</Text>
                     <Text style={styles.text}>
                         Splan helps you organize your schoolday.
@@ -50,11 +74,24 @@ export default function Index() {
                         <Text style={styles.buText}>Next</Text>
                     </TouchableOpacity>
                 </SafeAreaView>
-            </Modal>
+            )}
+
+
 
             {/* Info Page 2 */}
-            <Modal animationType="slide" visible={step === 2}>
+
+            { step === 2 && (
                 <SafeAreaView style={styles.page}>
+                    <View style={styles.progressView}>
+                        <Progress.Bar
+                            progress={0.5}
+                            color={"#22c55e"}
+                            unfilledColor={"#0d1d1f"}
+                            width={width.width * 0.8}
+                            height={10}
+                            borderRadius={15}
+                        />
+                    </View>
                     <Text style={styles.heading}>🎓 Splan for Students</Text>
                     <Text style={styles.text}>
                         Students can track subjects, exams and dates.
@@ -63,11 +100,23 @@ export default function Index() {
                         <Text style={styles.buText}>Next</Text>
                     </TouchableOpacity>
                 </SafeAreaView>
-            </Modal>
+            )}
+
 
             {/* Info Page 3 */}
-            <Modal animationType="slide" visible={step === 3}>
+
+            { step === 3 && (
                 <SafeAreaView style={styles.page}>
+                    <View style={styles.progressView }>
+                        <Progress.Bar
+                            progress={0.75}
+                            color={"#22c55e"}
+                            unfilledColor={"#0d1d1f"}
+                            width={width.width * 0.8}
+                            height={10}
+                            borderRadius={15}
+                        />
+                    </View>
                     <Text style={styles.heading}>👨‍🏫 Splan for Teachers</Text>
                     <Text style={styles.text}>
                         Teachers can manage classes, students and exams.
@@ -76,11 +125,22 @@ export default function Index() {
                         <Text style={styles.buText}>Next</Text>
                     </TouchableOpacity>
                 </SafeAreaView>
-            </Modal>
+            )}
+
 
             {/* Login Page */}
-            <Modal animationType="slide" visible={step === 4}>
+            { step === 4 && (
                 <SafeAreaView style={styles.page}>
+                    <View style={styles.progressView}>
+                        <Progress.Bar
+                            progress={1}
+                            color={"#22c55e"}
+                            unfilledColor={"#0d1d1f"}
+                            width={width.width * 0.8}
+                            height={10}
+                            borderRadius={15}
+                        />
+                    </View>
                     <Text style={styles.heading}>Splan</Text>
                     <Text style={styles.text}>Please choose your role</Text>
                     <View style={styles.buttonContainer}>
@@ -92,7 +152,8 @@ export default function Index() {
                         </TouchableOpacity>
                     </View>
                 </SafeAreaView>
-            </Modal>
+            )}
+
         </SafeAreaView>
     );
 }
@@ -100,11 +161,12 @@ export default function Index() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: "#0a0a0a",
+        backgroundColor: "#0d1d1f" ,
+        padding: 16,
     },
     page: {
         flex: 1,
-        backgroundColor: "#0a0a0a",
+        backgroundColor: "#0d1d1f",
         justifyContent: "center",
         alignItems: "center",
         padding: 24,
@@ -112,7 +174,7 @@ const styles = StyleSheet.create({
     heading: {
         fontSize: 35,
         fontWeight: "bold",
-        color: "#4ade80",
+        color: "#22c55e",
         marginBottom: 16,
         textAlign: "center",
     },
@@ -136,22 +198,27 @@ const styles = StyleSheet.create({
         borderRadius: 15,
         paddingVertical: 12,
         paddingHorizontal: 24,
-        shadowColor: "#22c55e",
-        shadowOpacity: 0.6,
-        shadowRadius: 6,
-        elevation: 6,
     },
+
     buttonContainer: {
         flexDirection: "row",
         marginTop: 30,
+        gap: 10,
     },
     chooseButton: {
-        backgroundColor: "#3b3b3b",
-        marginHorizontal: 8,
+        marginTop: 10,
+        backgroundColor: "#22c55e",
         borderRadius: 15,
         paddingVertical: 12,
-        paddingHorizontal: 20,
-        borderWidth: 1,
-        borderColor: "#4ade80",
+        paddingHorizontal: 24,
+    },
+
+    progressView: {
+        position: "absolute",
+        top: 0,
+        alignItems: "center",
+        justifyContent: "center",
+        alignSelf: "center",
+        paddingTop: 20,
     },
 });

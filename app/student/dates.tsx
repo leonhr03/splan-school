@@ -11,57 +11,102 @@ import {
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
+type Appointment = {
+    subject: string;
+    date: string; // TT.MM.JJJJ
+    content: string;
+};
+
 export default function Dates() {
-    const [appt, setAppt] = useState<{ subject: string; date: string; content: string }[]>([]);
+    const [appt, setAppt] = useState<Appointment[]>([]);
     const [addAlert, setAddAlert] = useState(false);
     const [newExam, setNewExam] = useState("");
     const [newDate, setNewDate] = useState("");
     const [newContent, setNewContent] = useState("");
+    const [newDay, setNewDay] = useState("");
+    const [newMonth, setNewMonth] = useState("");
+    const [newYear, setNewYear] = useState("");
 
-    // für delete modal
+    // Delete Modal
     const [deleteAlert, setDeleteAlert] = useState(false);
-    const [apptToDelete, setApptToDelete] = useState<any>(null);
+    const [apptToDelete, setApptToDelete] = useState<Appointment | null>(null);
 
+    /* ---------------- SORTIERFUNKTION ---------------- */
+    const sortAppointmentsByDate = (list: Appointment[]) => {
+        return [...list].sort((a, b) => {
+            const [dA, mA, yA] = a.date.split(".").map(Number);
+            const [dB, mB, yB] = b.date.split(".").map(Number);
+
+            const dateA = new Date(yA, mA - 1, dA).getTime();
+            const dateB = new Date(yB, mB - 1, dB).getTime();
+
+            return dateA - dateB; // älteste zuerst
+            // return dateB - dateA; // neueste zuerst
+        });
+    };
+
+    /* ---------------- LOAD ---------------- */
     useEffect(() => {
         const load = async () => {
             const storedList = await AsyncStorage.getItem("apptList");
             if (storedList) {
-                setAppt(JSON.parse(storedList));
+                const parsed: Appointment[] = JSON.parse(storedList);
+                setAppt(sortAppointmentsByDate(parsed));
             }
         };
         load();
     }, []);
 
-    const addAppt = async (subject: string, date: string, content: string) => {
-        const trimmedExam = subject.trim();
-        const trimmedDate = date.trim();
-        const trimmedContent = content.trim();
 
-        if (trimmedExam && trimmedDate && trimmedContent) {
-            const newApptList = [
-                ...appt,
-                { subject: trimmedExam, date: trimmedDate, content: trimmedContent },
-            ];
-            await AsyncStorage.setItem("apptList", JSON.stringify(newApptList));
-            // @ts-ignore
-            setAppt(newApptList);
-            setNewExam("");
-            setNewDate("");
-            setNewContent("");
-            setAddAlert(false);
-        } else {
-            console.log("add failed");
+    const addAppt = async () => {
+        const subject = newExam.trim();
+        const content = newContent.trim();
+
+        const day = newDay.padStart(2, "0");
+        const month = newMonth.padStart(2, "0");
+        const year = newYear;
+
+        if (!subject || !content || !day || !month || !year) return;
+
+        const date = `${day}.${month}.${year}`;
+
+        // einfache Validierung
+        const d = new Date(Number(year), Number(month) - 1, Number(day));
+        if (
+            d.getDate() !== Number(day) ||
+            d.getMonth() !== Number(month) - 1 ||
+            d.getFullYear() !== Number(year)
+        ) {
+            console.log("Ungültiges Datum");
+            return;
         }
+
+        const newList = sortAppointmentsByDate([
+            ...appt,
+            { subject, date, content },
+        ]);
+
+        await AsyncStorage.setItem("apptList", JSON.stringify(newList));
+        setAppt(newList);
+
+        // reset
+        setNewExam("");
+        setNewContent("");
+        setNewDay("");
+        setNewMonth("");
+        setNewYear("");
+        setAddAlert(false);
     };
 
-    const confirmDeleteAppt = (item: any) => {
+    const confirmDeleteAppt = (item: Appointment) => {
         setApptToDelete(item);
         setDeleteAlert(true);
     };
 
     const deleteAppt = async () => {
         if (!apptToDelete) return;
-        const newApptList = appt.filter(
+
+        const newList = appt.filter(
             (a) =>
                 !(
                     a.subject === apptToDelete.subject &&
@@ -69,25 +114,25 @@ export default function Dates() {
                     a.content === apptToDelete.content
                 )
         );
-        await AsyncStorage.setItem("apptList", JSON.stringify(newApptList));
-        setAppt(newApptList);
+
+        await AsyncStorage.setItem("apptList", JSON.stringify(newList));
+        setAppt(newList);
         setApptToDelete(null);
         setDeleteAlert(false);
     };
 
-    const renderItem = ({ item }: any) => {
-        return (
-            <TouchableOpacity onLongPress={() => confirmDeleteAppt(item)}>
-                <View style={styles.card}>
-                    <View style={styles.cardHeader}>
-                        <Text style={styles.subject}>{item.subject}</Text>
-                        <Text style={styles.date}>{item.date}</Text>
-                    </View>
-                    <Text style={styles.content}>{item.content}</Text>
+
+    const renderItem = ({ item }: { item: Appointment }) => (
+        <TouchableOpacity onLongPress={() => confirmDeleteAppt(item)}>
+            <View style={styles.card}>
+                <View style={styles.cardHeader}>
+                    <Text style={styles.subject}>{item.subject}</Text>
+                    <Text style={styles.date}>{item.date}</Text>
                 </View>
-            </TouchableOpacity>
-        );
-    };
+                <Text style={styles.content}>{item.content}</Text>
+            </View>
+        </TouchableOpacity>
+    );
 
     return (
         <SafeAreaView style={styles.container}>
@@ -96,61 +141,79 @@ export default function Dates() {
             <FlatList
                 data={appt}
                 renderItem={renderItem}
-                keyExtractor={(item, index) => index.toString()}
-                contentContainerStyle={{ paddingBottom: 30 }}
+                keyExtractor={(_, index) => index.toString()}
                 showsVerticalScrollIndicator={false}
+                contentContainerStyle={{ paddingBottom: 120 }}
             />
 
-            {/* Add Button */}
+            {/* ADD FAB */}
             <TouchableOpacity style={styles.addFab} onPress={() => setAddAlert(true)}>
                 <Text style={styles.addText}>+</Text>
             </TouchableOpacity>
 
-            {/* Add Modal */}
-            <Modal transparent animationType="slide" visible={addAlert}>
+            {/* ADD MODAL */}
+            <Modal transparent animationType="fade" visible={addAlert}>
                 <TouchableOpacity
                     style={styles.sheetOverlay}
                     activeOpacity={1}
                     onPress={() => setAddAlert(false)}
                 >
-                    <TouchableOpacity
-                        activeOpacity={1}
-                        style={styles.sheetsContainer}
-                        onPress={() => {}}
-                    >
-                        <Text style={styles.heading}>Add A Date</Text>
+                    <TouchableOpacity style={styles.sheetsContainer} activeOpacity={1}>
+                        <Text style={styles.heading}>Termin hinzufügen</Text>
+
                         <TextInput
                             value={newExam}
                             onChangeText={setNewExam}
                             style={styles.textInput}
                             placeholder="Titel"
-                            placeholderTextColor="#fff"
+                            placeholderTextColor="#aaa"
                         />
-                        <TextInput
-                            value={newDate}
-                            onChangeText={setNewDate}
-                            style={styles.textInput}
-                            placeholder="Datum"
-                            placeholderTextColor="#fff"
-                        />
+                        <View style={styles.dateRow}>
+                            <TextInput
+                                value={newDay}
+                                onChangeText={setNewDay}
+                                style={styles.dateInput}
+                                placeholder="TT"
+                                placeholderTextColor="#aaa"
+                                keyboardType="numeric"
+                            />
+                            <TextInput
+                                value={newMonth}
+                                onChangeText={setNewMonth}
+                                style={styles.dateInput}
+                                placeholder="MM"
+                                placeholderTextColor="#aaa"
+                                keyboardType="numeric"
+                            />
+                            <TextInput
+                                value={newYear}
+                                onChangeText={setNewYear}
+                                style={styles.dateInput}
+                                placeholder="JJJJ"
+                                placeholderTextColor="#aaa"
+                                keyboardType="numeric"
+                            />
+                        </View>
+
                         <TextInput
                             value={newContent}
                             onChangeText={setNewContent}
                             style={styles.textInput}
                             placeholder="Inhalt"
-                            placeholderTextColor="#fff"
+                            placeholderTextColor="#aaa"
                         />
+
                         <TouchableOpacity
                             style={styles.addButton}
-                            onPress={() => addAppt(newExam, newDate, newContent)}
+                            onPress={() => addAppt()}
                         >
-                            <Text style={styles.addButtonText}>Add</Text>
+                            <Text style={styles.addButtonText}>Hinzufügen</Text>
                         </TouchableOpacity>
                     </TouchableOpacity>
                 </TouchableOpacity>
             </Modal>
 
-            {/* Delete Modal */}
+            {/* DELETE MODAL */}
             <Modal transparent animationType="fade" visible={deleteAlert}>
                 <View style={styles.centeredView}>
                     <View style={styles.deleteModal}>
@@ -184,111 +247,106 @@ export default function Dates() {
 }
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        padding: 16,
-        backgroundColor: "#000000",
-    },
+    container: { flex: 1, padding: 16, backgroundColor: "#0d1d1f" },
     heading: {
         fontSize: 26,
-        marginBottom: 15,
         fontWeight: "bold",
         color: "#22c55e",
         marginTop: 20,
+        marginBottom: 15,
         alignSelf: "center",
     },
     card: {
-        backgroundColor: "#060606",
-        borderColor: "#22c55e",
+        backgroundColor: "#0d2d2f",
+        borderColor: "#0d4d4f",
         borderWidth: 2,
         padding: 18,
         marginVertical: 8,
-        marginHorizontal: 10,
         borderRadius: 16,
-        shadowColor: "#000",
-        shadowOpacity: 0.2,
-        shadowOffset: { width: 0, height: 2 },
-        shadowRadius: 6,
-        elevation: 4,
-        width: "95%",
+        width: "90%",
+        alignSelf: "center",
     },
     cardHeader: {
         flexDirection: "row",
         justifyContent: "space-between",
         marginBottom: 8,
     },
-    subject: {
-        fontSize: 18,
-        fontWeight: "bold",
-        color: "#22e55c",
-    },
-    date: {
-        fontSize: 14,
-        color: "#9ca3af",
-    },
-    content: {
-        fontSize: 16,
-        color: "#ffffff",
-        lineHeight: 22,
-    },
+    subject: { fontSize: 18, fontWeight: "bold", color: "#22e55c" },
+    date: { fontSize: 14, color: "#0d7d7f" },
+    content: { fontSize: 16, color: "#fff" },
+
     addFab: {
         backgroundColor: "#22c55e",
-        borderRadius: 30,
         width: 60,
         height: 60,
+        borderRadius: 30,
         position: "absolute",
-        bottom: 30,
+        bottom: 110,
         right: 30,
         alignItems: "center",
         justifyContent: "center",
-        marginBottom: 80,
     },
-    addText: {
-        color: "#ffffff",
-        fontSize: 24,
-    },
+    addText: { fontSize: 26, color: "#fff" },
+
     sheetOverlay: {
         flex: 1,
-        backgroundColor: "rgba(0,0,0,0.1)",
-        alignItems: "center",
+        backgroundColor: "rgba(0,0,0,0.3)",
         justifyContent: "center",
+        alignItems: "center",
     },
     sheetsContainer: {
-        backgroundColor: "#111",
+        backgroundColor: "#0d1d1f",
         borderRadius: 15,
         width: "90%",
         alignItems: "center",
+        paddingBottom: 20,
     },
     textInput: {
-        marginTop: 20,
-        backgroundColor: "#111",
-        borderColor: "#22c55e",
-        borderRadius: 15,
+        marginTop: 15,
+        backgroundColor: "#0d2d2f",
+        borderColor: "#0d3d3f",
         borderWidth: 2,
+        borderRadius: 15,
         padding: 14,
         width: "80%",
         color: "#fff",
     },
+
+    dateRow: {
+        flexDirection: "row",
+        justifyContent: "center",
+        alignItems: "center",
+        gap: 10,
+        width: "95%",
+    },
+
+    dateInput: {
+        marginTop: 15,
+        backgroundColor: "#0d2d2f",
+        borderColor: "#0d3d3f",
+        borderWidth: 2,
+        borderRadius: 15,
+        padding: 14,
+        width: "20%",
+        color: "#fff",
+    },
     addButton: {
-        marginTop: 40,
-        marginBottom: 20,
+        marginTop: 30,
         backgroundColor: "#22c55e",
         borderRadius: 15,
         paddingVertical: 12,
-        paddingHorizontal: 24,
-        alignItems: "center",
+        paddingHorizontal: 30,
     },
-    addButtonText: { fontSize: 17, color: "#fff", fontWeight: "600" },
+    addButtonText: { color: "#fff", fontSize: 17, fontWeight: "600" },
 
-    // delete modal styles
     centeredView: {
         flex: 1,
+        backgroundColor: "rgba(0,0,0,0.3)",
         justifyContent: "center",
         alignItems: "center",
-        backgroundColor: "rgba(0,0,0,0.6)",
     },
     deleteModal: {
-        backgroundColor: "#111",
+        backgroundColor: "#0d1d1f",
         borderRadius: 20,
         padding: 25,
         width: "80%",
@@ -300,17 +358,8 @@ const styles = StyleSheet.create({
         color: "#22c55e",
         marginBottom: 15,
     },
-    deleteText: {
-        fontSize: 16,
-        color: "#fff",
-        marginBottom: 20,
-        textAlign: "center",
-    },
-    deleteButtons: {
-        flexDirection: "row",
-        justifyContent: "space-between",
-        width: "100%",
-    },
+    deleteText: { fontSize: 16, color: "#fff", textAlign: "center", marginBottom: 20 },
+    deleteButtons: { flexDirection: "row", width: "100%" },
     cancelButton: {
         flex: 1,
         backgroundColor: "#444",

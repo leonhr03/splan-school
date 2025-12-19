@@ -192,7 +192,16 @@ export default function ChooseGrade() {
 
     return (
         <SafeAreaView style={styles.container}>
-            <Text style={styles.heading}>{subject}</Text>
+            <View style={styles.header}>
+                <TouchableOpacity
+                    style={styles.backButton}
+                    onPress={() => router.replace("/student/home")}
+                >
+                    <Ionicons name="arrow-back" size={28} color="#22c55e"/>
+                </TouchableOpacity>
+
+                <Text style={styles.heading}>{subject}</Text>
+            </View>
             <Text style={styles.gesHeading}>Gesamt Ø {avrGes}</Text>
 
             <View style={styles.cardLayout}>
@@ -278,7 +287,7 @@ export default function ChooseGrade() {
             </Modal>
 
             {/* Schriftlich Modal */}
-            <Modal transparent animationType="slide" visible={showExamModal}>
+            <Modal transparent animationType="fade" visible={showExamModal}>
                 <TouchableOpacity style={styles.overlay} onPress={() => setShowExamModal(false)}>
                     <TouchableWithoutFeedback  onPress={() => setShowExamModal(true)}>
                         <View style={styles.modalContainer}>
@@ -321,7 +330,7 @@ export default function ChooseGrade() {
             </Modal>
 
             {/* Mündlich Modal */}
-            <Modal transparent animationType="slide" visible={showMundModal}>
+            <Modal transparent animationType="fade" visible={showMundModal}>
                 <TouchableOpacity style={styles.overlay} onPress={() => setShowMundModal(false)}>
                     <TouchableWithoutFeedback style={styles.modalContainer} onPress={() => setShowMundModal(true)}>
                         <View style={styles.modalContainer}>
@@ -427,28 +436,37 @@ export default function ChooseGrade() {
 
 
             {/* Zurück */}
-            <TouchableOpacity style={styles.backButton} onPress={() => router.replace("/student/home")}>
-                <Text style={styles.buText}>{"<-"}</Text>
-            </TouchableOpacity>
+
         </SafeAreaView>
     );
 }
 
 const styles = StyleSheet.create({
-    container: { flex: 1, backgroundColor: "#000", padding: 16 },
-    heading: { fontSize: 22, fontWeight: "bold", color: "#22c55e", marginTop: 20, textAlign: "center" },
+    container: { flex: 1, backgroundColor: "#0d1d1f", padding: 16 },
+    backButton: {
+        position: "absolute",
+        left: 20,
+        padding: 8,
+    },
+
+    heading: {
+        fontSize: 22,
+        fontWeight: "bold",
+        color: "#22c55e",
+        textAlign: "center",
+    },
     gesHeading: { fontSize: 20, fontWeight: "bold", color: "#fff", marginVertical: 10, textAlign: "center" },
     editButton: { position: "absolute", right: 20, top: 20 },
     cardLayout: { flex: 1, marginBottom: 80 },
-    card: { flex: 1, marginVertical: 10, marginHorizontal: 20, padding: 16, borderRadius: 15, borderWidth: 2, borderColor: "#22c55e" },
+    card: { flex: 1, marginVertical: 10, marginHorizontal: 20, padding: 16, borderRadius: 15, borderWidth: 2, borderColor: "#0d4d4f", backgroundColor: "#0d2d2f" },
     text: { color: "#fff", fontSize: 20, marginBottom: 10, fontWeight: "bold" },
     listItem: { flexDirection: "row", justifyContent: "space-between", paddingVertical: 5 },
     listText: { color: "#fff", fontSize: 18 },
-    listGrade: { borderColor: "#22c55e", borderWidth: 2, height: 40, width: 40, borderRadius: 20, alignItems: "center", justifyContent: "center" },
+    listGrade: { borderColor: "#0d4d4f", borderWidth: 2, height: 40, width: 40, borderRadius: 20, alignItems: "center", justifyContent: "center" },
     addButton: { marginTop: 10, backgroundColor: "#22c55e", width: 40, height: 40, borderRadius: 20, alignItems: "center", justifyContent: "center", alignSelf: "flex-end" },
     addButtonText: { color: "#fff", fontSize: 24, fontWeight: "bold" },
     overlay: { flex: 1, backgroundColor: "rgba(0,0,0,0.5)", justifyContent: "center", alignItems: "center" },
-    deleteModal: { backgroundColor: "#111", borderRadius: 15, padding: 20, width: "80%", alignItems: "center" },
+    deleteModal: { backgroundColor: "#0d1d1f", borderRadius: 15, padding: 20, width: "80%", alignItems: "center" },
     deleteTitle: { fontSize: 22, fontWeight: "bold", color: "#22c55e", marginBottom: 10 },
     deleteText: { fontSize: 18, color: "#fff", marginBottom: 20, textAlign: "center" },
     deleteButtons: { flexDirection: "row", justifyContent: "space-between", width: "100%" },
@@ -456,14 +474,22 @@ const styles = StyleSheet.create({
     deleteButton: { flex: 1, marginLeft: 10, backgroundColor: "#e11d48", padding: 12, borderRadius: 10, alignItems: "center" },
     cancelText: { color: "#fff", fontSize: 16, fontWeight: "600" },
     deleteTextButton: { color: "#fff", fontSize: 16, fontWeight: "600" },
-    backButton: { backgroundColor: "#22c55e", width: 60, height: 60, borderRadius: 30, position: "absolute", left: 30, bottom: 30, alignItems: "center", justifyContent: "center" },
     buText: { fontSize: 22, color: "#fff" },
-    modalContainer: { backgroundColor: "#111", borderRadius: 20, padding: 20, width: "90%" },
-    input: { marginTop: 15, backgroundColor: "#000", borderColor: "#22c55e", borderWidth: 2, borderRadius: 10, padding: 10, color: "#fff" },
+    modalContainer: { backgroundColor: "#0d1d1f", borderRadius: 20, padding: 20, width: "90%" },
+    input: { marginTop: 15, backgroundColor: "#0d2d2f", borderColor: "#0d3d3f", borderWidth: 2, borderRadius: 10, padding: 10, color: "#fff" },
     saveButton: { marginTop: 20, backgroundColor: "#22c55e", padding: 12, borderRadius: 10, alignItems: "center" },
     saveButtonText: { color: "#fff", fontSize: 16, fontWeight: "bold" },
-    typeButton: { padding: 10, borderRadius: 10, borderWidth: 2, borderColor: "#22c55e", alignItems: "center", justifyContent: "center" },
+    typeButton: { padding: 10,  width: 50, height: 50, borderRadius: 25, borderWidth: 2, borderColor: "#0d3d3f", backgroundColor: "#0d2d2f" ,alignItems: "center", justifyContent: "center" },
     typeButtonActive: { backgroundColor: "#22c55e" },
     typeButtonText: { color: "#fff", fontSize: 16, fontWeight: "bold" },
+    header: {
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "center",
+        marginTop: 20,
+        paddingHorizontal: 16,
+        position: "relative",
+    },
+
 
 });
