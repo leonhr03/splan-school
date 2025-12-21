@@ -66,9 +66,9 @@ export default function Index() {
                             borderRadius={15}
                         />
                     </View>
-                    <Text style={styles.heading}>👋 Welcome to Splan</Text>
+                    <Text style={styles.heading}>👋 Willkommen bei Splan</Text>
                     <Text style={styles.text}>
-                        Splan helps you organize your schoolday.
+                        Splan hiflt dir deinen Schultag zu Organisieren.
                     </Text>
                     <TouchableOpacity style={styles.button} onPress={() => setStep(2)}>
                         <Text style={styles.buText}>Next</Text>
@@ -92,9 +92,9 @@ export default function Index() {
                             borderRadius={15}
                         />
                     </View>
-                    <Text style={styles.heading}>🎓 Splan for Students</Text>
+                    <Text style={styles.heading}>🎓 Splan für Schüler</Text>
                     <Text style={styles.text}>
-                        Students can track subjects, exams and dates.
+                       Schüler können ihren Termin- und Stundenplan verwalten und ihre Noten eintragen.
                     </Text>
                     <TouchableOpacity style={styles.button} onPress={() => setStep(3)}>
                         <Text style={styles.buText}>Next</Text>
@@ -117,9 +117,9 @@ export default function Index() {
                             borderRadius={15}
                         />
                     </View>
-                    <Text style={styles.heading}>👨‍🏫 Splan for Teachers</Text>
+                    <Text style={styles.heading}>👨‍🏫 Splan für Lehrer</Text>
                     <Text style={styles.text}>
-                        Teachers can manage classes, students and exams.
+                        Lehrer können Termine und Stundenplan verwalten und Schülernoten eintragen.
                     </Text>
                     <TouchableOpacity style={styles.button} onPress={() => setStep(4)}>
                         <Text style={styles.buText}>Next</Text>
@@ -142,13 +142,13 @@ export default function Index() {
                         />
                     </View>
                     <Text style={styles.heading}>Splan</Text>
-                    <Text style={styles.text}>Please choose your role</Text>
+                    <Text style={styles.text}>Wähle dein Nutzen</Text>
                     <View style={styles.buttonContainer}>
                         <TouchableOpacity style={styles.chooseButton} onPress={student}>
-                            <Text style={styles.buText}>🎓 Student</Text>
+                            <Text style={styles.buText}>🎓 Schüler</Text>
                         </TouchableOpacity>
                         <TouchableOpacity style={styles.chooseButton} onPress={teacher}>
-                            <Text style={styles.buText}>👨‍🏫 Teacher</Text>
+                            <Text style={styles.buText}>👨‍🏫 Lehrer</Text>
                         </TouchableOpacity>
                     </View>
                 </SafeAreaView>

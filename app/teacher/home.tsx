@@ -142,7 +142,7 @@ export default function TeacherHome() {
     return (
         <SafeAreaView style={styles.container}>
             <View style={styles.header}>
-                <Text style={styles.heading}>Splan for Teachers</Text>
+                <Text style={styles.heading}>Splan für Lehrer</Text>
                <TouchableOpacity style={styles.addFab} onPress={() => setAddAlert(true)} >
                    <Ionicons name="add" size={30} color="#22c55e"/>
                </TouchableOpacity>
