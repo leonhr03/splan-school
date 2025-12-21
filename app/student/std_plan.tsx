@@ -8,7 +8,7 @@ import {
     TouchableOpacity,
     Modal,
     TextInput,
-    TouchableWithoutFeedback,
+    TouchableWithoutFeedback, Platform,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Ionicons } from "@expo/vector-icons";
@@ -144,17 +144,20 @@ export default function TimeTable() {
 
     return (
         <SafeAreaView style={styles.container}>
-            <View style={styles.headingRow}>
+            <View style={styles.header}>
                 <Text style={styles.heading}>Stundenplan</Text>
+                <TouchableOpacity style={styles.edit} onPress={() => setEditModal(true)}>
+                    <Ionicons name={"pencil"} color={"#22c55e"} size={26} />
+                </TouchableOpacity>
             </View>
 
             <View style={styles.topRow}>
                 <TouchableOpacity style={styles.buttonLeft} onPress={dayBefore}>
-                   <Ionicons name={"arrow-back"} color={"#fff"} size={20} />
+                    <Ionicons name={"arrow-back"} color={"#fff"} size={20} />
                 </TouchableOpacity>
                 <Text style={styles.dayText}>{days[dayIndex]}</Text>
                 <TouchableOpacity style={styles.buttonRight} onPress={nextDay}>
-                  <Ionicons name={"arrow-forward"} color={"#fff"} size={20} />
+                    <Ionicons name={"arrow-forward"} color={"#fff"} size={20} />
                 </TouchableOpacity>
             </View>
 
@@ -165,9 +168,7 @@ export default function TimeTable() {
                 keyExtractor={(_, i) => i.toString()}
             />
 
-            <TouchableOpacity style={styles.edit} onPress={() => setEditModal(true)}>
-                <Ionicons name={"pencil"} style={styles.editIcon} />
-            </TouchableOpacity>
+
 
             {/* Edit Modal */}
             <Modal transparent animationType="slide" visible={editModal}>
@@ -176,7 +177,7 @@ export default function TimeTable() {
                         <View style={StyleSheet.absoluteFillObject} />
                     </TouchableWithoutFeedback>
                     <View style={styles.modalContainer}>
-                        <Text style={styles.heading}>{days[dayIndex]}</Text>
+                        <Text style={[styles.heading, {marginTop: 20}]}>{days[dayIndex]}</Text>
                         <View style={styles.listCard}>
                             <FlatList
                                 data={plan}
@@ -197,7 +198,7 @@ export default function TimeTable() {
                             <View style={StyleSheet.absoluteFillObject} />
                         </TouchableWithoutFeedback>
                         <View style={styles.alertContainer}>
-                            <Text style={styles.heading}>Neue Stunde</Text>
+                            <Text style={[styles.heading, {marginTop: 20}]}>Neue Stunde</Text>
                             <View style={styles.timeRow}>
                                 <TouchableOpacity style={styles.textInputRow} onPress={() => setShowAddStartPicker(true)}>
                                     <Text style={{ color: "#22c55e", textAlign: "center" }}>
@@ -243,7 +244,7 @@ export default function TimeTable() {
                             <View style={StyleSheet.absoluteFillObject} />
                         </TouchableWithoutFeedback>
                         <View style={styles.alertContainer}>
-                            <Text style={styles.heading}>Stunde bearbeiten</Text>
+                            <Text style={[styles.heading, {marginTop: 20}]}>Stunde bearbeiten</Text>
                             <View style={styles.timeRow}>
                                 <TouchableOpacity style={styles.textInputRow} onPress={() => setShowEditStartPicker(true)}>
                                     <Text style={{ color: "#22c55e", textAlign: "center" }}>
@@ -314,29 +315,13 @@ const styles = StyleSheet.create({
         alignItems: "center",
         justifyContent: "center",
         position: "absolute",
-        right: 30,
-        bottom: 30,
-        backgroundColor: "#22c55e",
-        width: 60,
-        height: 60,
-        borderRadius: 30,
-        marginBottom: 80,
+        right: 20,
     },
 
     editIcon: {
         fontSize: 20,
         color: "#fff",
     },
-
-    headingRow: {
-        flexDirection: "row",
-        justifyContent: "center",
-        alignItems: "center",
-        position: "relative",
-        width: "100%",
-        marginTop: 20,
-    },
-
     topRow: {
         flexDirection: "row",
         justifyContent: "center",
@@ -549,6 +534,16 @@ const styles = StyleSheet.create({
         height: 2,
         backgroundColor: "#22c55e",
         borderRadius: 1,
+    },
+
+    header: {
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "center",
+        marginTop: Platform.OS === "ios" ? 20 : 30,
+        paddingHorizontal: 16,
+        position: "relative",
+        width: "100%",
     },
 
 })

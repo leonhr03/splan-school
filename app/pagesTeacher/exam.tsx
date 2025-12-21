@@ -477,7 +477,7 @@ export default function ExamPage() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: "#000",
+        backgroundColor: "#0d1d1f",
         padding: 16,
         alignItems: "center",
     },
@@ -526,7 +526,8 @@ const styles = StyleSheet.create({
         width: screenWidth * 0.85,
         height: screenHeight * 0.6,
         borderWidth: 2,
-        borderColor: "#22c55e",
+        borderColor: "#0d4d4f",
+        backgroundColor: "#0d2d2f",
         borderRadius: 15,
         marginTop: 50,
         padding: 16,
@@ -567,7 +568,7 @@ const styles = StyleSheet.create({
     modalContainer: {
         width: "95%",
         alignItems: "center",
-        backgroundColor: "#111111",
+        backgroundColor: "#0d1d1f",
         borderRadius: 15,
         padding: 16,
     },
@@ -577,7 +578,8 @@ const styles = StyleSheet.create({
         padding: 16,
         color: "#22c55e",
         borderWidth: 2,
-        borderColor: "#22c55e",
+        borderColor: "#0d4d4f",
+        backgroundColor: "#0d2d2f",
         borderRadius: 15,
         width: "90%",
         marginTop: 20,
@@ -598,18 +600,24 @@ const styles = StyleSheet.create({
     },
 
     listItem: {
-        width: "100%",
+        width: "95%",
         flexDirection: "row",
+        padding: 10,
         marginTop: 10,
+        backgroundColor: "#0d3d3f",
+        borderColor: "#0d5d5f",
+        borderWidth: 2,
+        borderRadius: 15,
+        alignSelf: "center",
     },
 
     leftItem: {
         width: "75%",
         height: 60,
         borderWidth: 2,
-        borderColor: "#22c55e",
+        borderColor: "#0d4d4f",
         borderRadius: 30,
-        marginRight: 20,
+        marginRight: 5,
         paddingLeft: 15,
         alignItems: "flex-start",
         justifyContent: "center",
@@ -619,7 +627,7 @@ const styles = StyleSheet.create({
         height: 60,
         width: 60,
         borderWidth: 2,
-        borderColor: "#22c55e",
+        borderColor: "#0d4d4f",
         borderRadius: 30,
         alignItems: "center",
         justifyContent: "center",
@@ -638,7 +646,7 @@ const styles = StyleSheet.create({
 
     // delete modal
     deleteModal: {
-        backgroundColor: "#111",
+        backgroundColor: "#0d1d1f",
         borderRadius: 15,
         padding: 20,
         width: "80%",
@@ -714,10 +722,11 @@ const styles = StyleSheet.create({
     },
     weightButton: {
         borderWidth: 1,
-        borderColor: "#22c55e",
+        borderColor: "#0d4d4f",
+        backgroundColor: "#0d2d2f",
         paddingHorizontal: 12,
         paddingVertical: 6,
-        borderRadius: 8,
+        borderRadius: "50%",
         marginHorizontal: 8,
     },
     weightButtonText: {

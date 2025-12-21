@@ -2,7 +2,7 @@ import React, {useEffect, useState} from "react"
 import {
     Button,
     FlatList,
-    Modal,
+    Modal, Platform,
     SafeAreaView,
     StyleSheet,
     Text, TextInput,
@@ -12,6 +12,7 @@ import {
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import {useRouter} from "expo-router";
+import {Ionicons} from "@expo/vector-icons";
 
 export default function TeacherHome() {
 
@@ -140,17 +141,17 @@ export default function TeacherHome() {
 
     return (
         <SafeAreaView style={styles.container}>
-            <Text style={styles.heading}>Splan for Teachers</Text>
+            <View style={styles.header}>
+                <Text style={styles.heading}>Splan for Teachers</Text>
+               <TouchableOpacity style={styles.addFab} onPress={() => setAddAlert(true)} >
+                   <Ionicons name="add" size={30} color="#22c55e"/>
+               </TouchableOpacity>
+            </View>
             <FlatList
                 style={styles.classList}
                 data={classList}
                 renderItem={renderItem}
                 keyExtractor={(item) => item.class}/>
-
-            <TouchableOpacity style={styles.addFab} onPress={() => setAddAlert(true)}>
-                <Text style={styles.fabText}>+</Text>
-            </TouchableOpacity>
-
             {/*add Alert*/}
             <Modal transparent animationType={"fade"} visible={addAlert}>
                 <TouchableOpacity style={styles.modalOverlay} onPress={() => setAddAlert(false)}>
@@ -272,35 +273,54 @@ export default function TeacherHome() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: "#000000",
+        backgroundColor: "#0d1d1f",
         alignItems: "center",
         padding: 16,
+    },
+
+    header: {
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "center",
+        marginTop: Platform.OS === "ios" ? 20 : 30,
+        paddingHorizontal: 16,
+        position: "relative",
+        width: "100%",
     },
 
     heading: {
         fontSize: 26,
         color: "#22c55e",
         fontWeight: "bold",
-        marginTop: 20,
     },
 
-    avrText: {
-        fontSize: 25,
-        color: "#ffffff",
-        marginTop: 20,
+    addFab: {
+        position: "absolute",
+        right: 20,
+        alignItems: "center",
+        justifyContent: "center",
     },
 
     itemContainer: {
         flex: 1,
         justifyContent: "center",
+        alignItems: "center",
+        alignSelf: "center",
         marginBottom: 20,
+        backgroundColor: "#0d2d2f",
+        borderWidth: 2,
+        borderColor: "#0d4d4f",
+        width: "90%",
+        borderRadius: 15,
+        padding: 10
     },
 
     border: {
         width: "90%",
         height: 60,
         borderWidth: 2,
-        borderColor: "#22c55e",
+        borderColor: "#0d4d4f",
+        backgroundColor: "#0d3d3f",
         borderRadius: 30,
         alignItems: "center",
         justifyContent: "center",
@@ -317,17 +337,7 @@ const styles = StyleSheet.create({
         width: "100%",
     },
 
-    addFab: {
-        position: "absolute",
-        right: 30,
-        bottom: 110,
-        height: 60,
-        width: 60,
-        borderRadius: 30,
-        backgroundColor: "#22c55e",
-        alignItems: "center",
-        justifyContent: "center",
-    },
+
 
     fabText: {
         fontSize: 22,
@@ -351,21 +361,21 @@ const styles = StyleSheet.create({
     addAlertContainer: {
         width: "95%",
         alignItems: "center",
-        backgroundColor: "#111111",
+        backgroundColor: "#0d1d1f",
         borderRadius: 15
     },
 
     addAlertHeading: {
         fontSize: 25,
-        color: "#22c55e",
+        color: "#22e55c",
         marginTop: 20,
         marginBottom: 20,
         fontWeight: "bold",
     },
 
     addAlertTextInput: {
-        backgroundColor: "#111",
-        borderColor: "#22c55e",
+        backgroundColor: "#0d2d2f",
+        borderColor: "#0d4d4f",
         borderRadius: 15,
         borderWidth: 2,
         padding: 14,
@@ -395,7 +405,7 @@ const styles = StyleSheet.create({
         justifyContent: "flex-start",
         alignItems: "center",
         flexDirection: "column",
-        backgroundColor: "#111111",
+        backgroundColor: "#0d1d1f",
         borderTopLeftRadius: 15,
         borderTopRightRadius: 15,
         padding: 16,
@@ -403,9 +413,10 @@ const styles = StyleSheet.create({
 
     listCard: {
         borderWidth: 2,
-        borderColor: "#22c55e",
+        borderColor: "#0d4d4f",
+        backgroundColor: "#0d2d2f",
         borderRadius: 15,
-        padding: 10,
+        padding: 15,
         width: "95%",
         height: 300,
         marginTop: 20,

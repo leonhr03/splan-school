@@ -8,7 +8,7 @@ import {
     FlatList,
     Modal,
     TextInput,
-    TouchableWithoutFeedback,
+    TouchableWithoutFeedback, Platform,
 } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -309,13 +309,13 @@ export default function ChooseGrade() {
                             />
                             <View style={{ flexDirection: "row", justifyContent: "space-around", marginTop: 15 }}>
                                 <TouchableOpacity
-                                    style={[styles.typeButton, newExamType === "test" && styles.typeButtonActive]}
+                                    style={[styles.button, newExamType === "test" && styles.typeButtonActive]}
                                     onPress={() => setNewExamType("test")}
                                 >
                                     <Text style={styles.typeButtonText}>Test</Text>
                                 </TouchableOpacity>
                                 <TouchableOpacity
-                                    style={[styles.typeButton, newExamType === "arbeit" && styles.typeButtonActive]}
+                                    style={[styles.button, newExamType === "arbeit" && styles.typeButtonActive]}
                                     onPress={() => setNewExamType("arbeit")}
                                 >
                                     <Text style={styles.typeButtonText}>Arbeit</Text>
@@ -486,9 +486,20 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         alignItems: "center",
         justifyContent: "center",
-        marginTop: 20,
+        marginTop: Platform.OS === "ios" ? 20 : 30,
         paddingHorizontal: 16,
         position: "relative",
+        width: "100%",
+    },
+
+
+    button: {
+        width: "30%",
+        backgroundColor: "#0d1d1f",
+        borderRadius: 15,
+        padding: 10,
+        alignItems: "center",
+        justifyContent: "center",
     },
 
 

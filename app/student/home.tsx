@@ -7,7 +7,7 @@ import {
     View,
     TouchableOpacity,
     Modal,
-    TextInput,
+    TextInput, Platform,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import {useRouter} from "expo-router";
@@ -141,7 +141,7 @@ export default function HomeStudent() {
                 <TouchableOpacity style={styles.addButtonTop} onPress={() => setAddAlert(true)}>
                     <Ionicons name="add" size={30} color="#22c55e" />
                 </TouchableOpacity>
-                <Text style={styles.heading}>Splan for Students</Text>
+                <Text style={styles.heading}>Splan</Text>
                 <TouchableOpacity style={styles.searchButton} onPress={() => setSearchAlert(true)}>
                     <Ionicons name="search" size={26} color="#22c55e" />
                 </TouchableOpacity>
@@ -156,6 +156,7 @@ export default function HomeStudent() {
                 renderItem={renderItem}
                 keyExtractor={(item) => item.subject}
                 contentContainerStyle={{paddingBottom: 80}}
+                showsVerticalScrollIndicator={false}
             />
 
             {/* Add Modal */}
@@ -176,7 +177,7 @@ export default function HomeStudent() {
                             onChangeText={setNewSubject}
                             style={styles.textInput}
                             placeholder="Subject"
-                            placeholderTextColor="#0d4d4f"
+                            placeholderTextColor="#0d5d5f"
                         />
                         <TouchableOpacity
                             style={styles.addButton}
@@ -268,11 +269,12 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         alignItems: "center",
         justifyContent: "center",
-        marginTop: 20,
+        marginTop: Platform.OS === "ios" ? 20 : 30,
         paddingHorizontal: 16,
         position: "relative",
         width: "100%",
     },
+
     text: {
         marginVertical: 20,
         fontSize: 25,
@@ -285,7 +287,7 @@ const styles = StyleSheet.create({
         alignSelf: "center",
         flexDirection: "row",
         justifyContent: "space-between",
-        width: "90%",
+        width: "95%",
         marginVertical: 10,
         paddingHorizontal: 16,
         padding: 10,
@@ -346,7 +348,7 @@ const styles = StyleSheet.create({
     textInput: {
         marginTop: 50,
         backgroundColor: "#0d3d3f",
-        borderColor: "#22c55e",
+        borderColor: "#0d5d5f",
         borderRadius: 15,
         borderWidth: 2,
         padding: 14,

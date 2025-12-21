@@ -7,9 +7,10 @@ import {
     FlatList,
     TouchableOpacity,
     Modal,
-    TextInput,
+    TextInput, Platform,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import {Ionicons} from "@expo/vector-icons";
 
 type Appointment = {
     subject: string;
@@ -136,7 +137,12 @@ export default function Dates() {
 
     return (
         <SafeAreaView style={styles.container}>
-            <Text style={styles.heading}>Termine</Text>
+            <View style={styles.header}>
+                <Text style={styles.heading}>Termine</Text>
+                <TouchableOpacity style={styles.addButtonTop} onPress={() => setAddAlert(true)}>
+                    <Ionicons name="add" size={30} color="#22e55c" />
+                </TouchableOpacity>
+            </View>
 
             <FlatList
                 data={appt}
@@ -146,10 +152,6 @@ export default function Dates() {
                 contentContainerStyle={{ paddingBottom: 120 }}
             />
 
-            {/* ADD FAB */}
-            <TouchableOpacity style={styles.addFab} onPress={() => setAddAlert(true)}>
-                <Text style={styles.addText}>+</Text>
-            </TouchableOpacity>
 
             {/* ADD MODAL */}
             <Modal transparent animationType="fade" visible={addAlert}>
@@ -159,7 +161,7 @@ export default function Dates() {
                     onPress={() => setAddAlert(false)}
                 >
                     <TouchableOpacity style={styles.sheetsContainer} activeOpacity={1}>
-                        <Text style={styles.heading}>Termin hinzufügen</Text>
+                        <Text style={[styles.heading, {marginTop: 20}]}>Termin hinzufügen</Text>
 
                         <TextInput
                             value={newExam}
@@ -252,9 +254,13 @@ const styles = StyleSheet.create({
         fontSize: 26,
         fontWeight: "bold",
         color: "#22c55e",
-        marginTop: 20,
-        marginBottom: 15,
         alignSelf: "center",
+    },
+
+    addButtonTop: {
+        position: "absolute",
+        right: 10,
+        padding: 8,
     },
     card: {
         backgroundColor: "#0d2d2f",
@@ -274,18 +280,6 @@ const styles = StyleSheet.create({
     subject: { fontSize: 18, fontWeight: "bold", color: "#22e55c" },
     date: { fontSize: 14, color: "#0d7d7f" },
     content: { fontSize: 16, color: "#fff" },
-
-    addFab: {
-        backgroundColor: "#22c55e",
-        width: 60,
-        height: 60,
-        borderRadius: 30,
-        position: "absolute",
-        bottom: 110,
-        right: 30,
-        alignItems: "center",
-        justifyContent: "center",
-    },
     addText: { fontSize: 26, color: "#fff" },
 
     sheetOverlay: {
@@ -377,4 +371,16 @@ const styles = StyleSheet.create({
         alignItems: "center",
     },
     deleteTextButton: { color: "#fff", fontSize: 16, fontWeight: "bold" },
+
+    header: {
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "center",
+        marginTop: Platform.OS === "ios" ? 20 : 30,
+        paddingHorizontal: 16,
+        position: "relative",
+        width: "100%",
+    },
+
+
 });

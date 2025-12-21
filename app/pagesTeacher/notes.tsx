@@ -149,6 +149,9 @@ export default function NotesPage() {
                     <Ionicons name="arrow-back" size={30} color="#22c55e" />
                 </TouchableOpacity>
                 <Text style={styles.heading}>{studentData.student}</Text>
+                <TouchableOpacity style={styles.addFab} onPress={() => setAddModalVisible(true)}>
+                    <Ionicons name={"add"} size={35} color={"#22e55c"}/>
+                </TouchableOpacity>
             </View>
 
             <FlatList
@@ -158,9 +161,7 @@ export default function NotesPage() {
                 keyExtractor={(_, index) => index.toString()}
             />
 
-            <TouchableOpacity style={styles.addFab} onPress={() => setAddModalVisible(true)}>
-                <Text style={styles.addFabText}>+</Text>
-            </TouchableOpacity>
+
 
             <Modal transparent animationType="fade" visible={detailView}>
                 <View style={styles.modalOverlay}>
@@ -290,7 +291,7 @@ export default function NotesPage() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: "#000000",
+        backgroundColor: "#0d1d1f",
         padding: 16,
         alignItems: "center",
     },
@@ -316,7 +317,8 @@ const styles = StyleSheet.create({
         width: "90%",
         height: 60,
         borderWidth: 2,
-        borderColor: "#22c55e",
+        borderColor: "#0d4d4f",
+        backgroundColor: "#0d2d2f",
         borderRadius: 30,
         alignItems: "center",
         justifyContent: "center",
@@ -330,14 +332,7 @@ const styles = StyleSheet.create({
     },
     addFab: {
         position: "absolute",
-        right: 30,
-        bottom: 30,
-        height: 60,
-        width: 60,
-        borderRadius: 30,
-        backgroundColor: "#22c55e",
-        alignItems: "center",
-        justifyContent: "center",
+        right: 20,
     },
     addFabText: {
         fontSize: 22,
@@ -366,7 +361,7 @@ const styles = StyleSheet.create({
     modalContainer: {
         width: "90%",
         height: "80%",
-        backgroundColor: "#111111",
+        backgroundColor: "#0d1d1f",
         borderRadius: 20,
         padding: 20,
         justifyContent: "flex-start",
@@ -415,7 +410,7 @@ const styles = StyleSheet.create({
         fontWeight: "600",
     },
     deleteModal: {
-        backgroundColor: "#111",
+        backgroundColor: "#0d1d1f",
         borderRadius: 15,
         padding: 20,
         width: "80%",

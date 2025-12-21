@@ -219,6 +219,6 @@ const styles = StyleSheet.create({
         alignItems: "center",
         justifyContent: "center",
         alignSelf: "center",
-        paddingTop: 20,
+        paddingTop: Platform.OS === "ios" ? 20 : 30,
     },
 });

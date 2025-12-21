@@ -8,9 +8,9 @@ import {
     TouchableOpacity,
     Modal,
     TextInput,
-    View,
+    View, TouchableWithoutFeedback,
 } from "react-native";
-import { CalendarList, DateData } from "react-native-calendars";
+import { Calendar, DateData } from "react-native-calendars";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 interface Appointments {
@@ -32,8 +32,11 @@ export default function TeacherAppt() {
     const [modalVisible, setModalVisible] = useState(false);
     const [selectedDate, setSelectedDate] = useState<string>("");
     const [title, setTitle] = useState<string>("");
+    const [currentMonth, setCurrentMonth] = useState(Date.now().toString().slice(0,7));
+    const filteredDates = Object.keys(appointments).filter(
+        (date) => date.startsWith(currentMonth)
+    );
 
-    // Lade gespeicherte Termine beim Start
     useEffect(() => {
         const loadAppointments = async () => {
             try {
@@ -44,8 +47,13 @@ export default function TeacherAppt() {
 
                     const newMarked: MarkedDates = {};
                     Object.keys(savedAppointments).forEach((date) => {
-                        newMarked[date] = { marked: true, dotColor: "#22c55e" };
+                        newMarked[date] = {
+                            marked: true,
+                            dotColor: "#22c55e",
+                            selected: true,
+                        };
                     });
+
                     setMarkedDates(newMarked);
                 }
             } catch (e) {
@@ -104,71 +112,77 @@ export default function TeacherAppt() {
         <SafeAreaView style={styles.container}>
             <Text style={styles.heading}>Termine</Text>
 
-            <CalendarList
-                style={[styles.calendar, { backgroundColor: "#000000" }]}
-                onDayPress={handleDayPress}
+            <Calendar
+                style={styles.calendar}
                 markedDates={markedDates}
-                pastScrollRange={12}
-                futureScrollRange={12}
-                scrollEnabled={true}
-                showScrollIndicator={true}
+                onDayPress={handleDayPress}
+                onMonthChange={(month) => {
+                    setCurrentMonth(month.dateString.slice(0, 7)); // "2025-01"
+                }}
                 theme={{
-                    backgroundColor: "#000000",
-                    calendarBackground: "#000000",
+                    calendarBackground: "#0d2d2f",
+                    textSectionTitleColor: "#ffffff",
+                    monthTextColor: "#22e55c",
                     todayTextColor: "#22c55e",
-                    arrowColor: "#22c55e",
-                    monthTextColor: "#22c55e",
+                    selectedDayTextColor: "#fff",
+                    selectedDayBackgroundColor: "#22c55e",
                     dayTextColor: "#ffffff",
-                    textDisabledColor: "#555555",
                 }}
             />
 
-            <FlatList
-                style={styles.list}
-                data={Object.keys(appointments).sort()}
-                keyExtractor={(item) => item}
-                contentContainerStyle={{ paddingBottom: 50 }}
-                renderItem={({ item }) => (
-                    <View style={styles.dayContainer}>
-                        <Text style={styles.dateText}>{item}</Text>
-                        {appointments[item].map((appt: string, index: number) => (
-                            <Text key={index} style={styles.appointmentText}>
-                                • {appt}
-                            </Text>
-                        ))}
-                    </View>
-                )}
-            />
+
+
+
+            <Text style={styles.heading}>Aktuelle Termine</Text>
+
+            {
+                filteredDates.length === 0 ? (
+                    <Text style={styles.listDefaultText}>Keine Termine</Text>
+                ) : (
+                <FlatList
+                    style={styles.list}
+                    data={filteredDates}
+                    keyExtractor={(item) => item}
+                    contentContainerStyle={{ paddingBottom: 50 }}
+                    renderItem={({ item }) => (
+                        <View style={styles.dayContainer}>
+                            <Text style={styles.dateText}>{item.toString().slice(8,10)}.{item.toString().slice(5,7)}.{item.toString().slice(0,4)}</Text>
+                            {appointments[item].map((appt: string, index: number) => (
+                            <Text key={index} style={styles.appointmentText}>{appt}</Text>
+                            ))}
+                        </View>
+                    )}
+                />
+
+                )
+            }
 
             <Modal
-                animationType="slide"
+                animationType="fade"
                 transparent={true}
                 visible={modalVisible}
                 onRequestClose={() => setModalVisible(false)}
             >
-                <View style={styles.modalBackground}>
-                    <View style={styles.modalContainer}>
-                        <Text style={styles.modalHeading}>
-                            Neuer Termin am {selectedDate}
-                        </Text>
-                        <TextInput
-                            style={styles.input}
-                            placeholder="Titel eingeben"
-                            placeholderTextColor="#888"
-                            value={title}
-                            onChangeText={setTitle}
-                        />
-                        <TouchableOpacity style={styles.button} onPress={addAppointment}>
-                            <Text style={styles.buttonText}>Hinzufügen</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity
-                            style={[styles.button, styles.cancelButton]}
-                            onPress={() => setModalVisible(false)}
-                        >
-                            <Text style={styles.buttonText}>Abbrechen</Text>
-                        </TouchableOpacity>
-                    </View>
-                </View>
+                <TouchableOpacity style={styles.modalBackground} onPress={() => setModalVisible(false)}>
+                    <TouchableWithoutFeedback onPress={() => {}}>
+                        <View  style={styles.modalContainer} >
+                            <Text style={styles.modalHeading}>
+                                Neuer Termin am {selectedDate.toString().slice(8,10)}.{selectedDate.toString().slice(5,7)}.{selectedDate.toString().slice(0,4)}
+                            </Text>
+                            <TextInput
+                                style={styles.input}
+                                placeholder="Titel eingeben"
+                                placeholderTextColor="#888"
+                                value={title}
+                                onChangeText={setTitle}
+                            />
+                            <TouchableOpacity style={styles.button} onPress={addAppointment}>
+                                <Text style={styles.buttonText}>Hinzufügen</Text>
+                            </TouchableOpacity>
+                        </View>
+
+                    </TouchableWithoutFeedback>
+                </TouchableOpacity>
             </Modal>
         </SafeAreaView>
     );
@@ -177,7 +191,7 @@ export default function TeacherAppt() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: "#000000",
+        backgroundColor: "#0d1d1f",
         padding: 16,
     },
     heading: {
@@ -189,11 +203,13 @@ const styles = StyleSheet.create({
         textAlign: "center",
     },
     calendar: {
-        width: "100%",
-        height: "60%",
+        width: "90%",
+        alignSelf: "center",
         borderRadius: 15,
         borderWidth: 2,
-        borderColor: "#22c55e",
+        borderColor: "#0d4d4f",
+        backgroundColor: "#0d2d2f",
+        padding: 10,
     },
     list: {
         flex: 1,
@@ -204,7 +220,8 @@ const styles = StyleSheet.create({
         marginHorizontal: 20,
         padding: 10,
         borderWidth: 2,
-        borderColor: "#22c55e",
+        borderColor: "#0d4d4f",
+        backgroundColor: "#0d2d2f",
         borderRadius: 15,
     },
     dateText: {
@@ -224,7 +241,7 @@ const styles = StyleSheet.create({
     },
     modalContainer: {
         width: "85%",
-        backgroundColor: "#1f1f1f",
+        backgroundColor: "#0d1d1f",
         borderRadius: 10,
         padding: 20,
     },
@@ -236,7 +253,8 @@ const styles = StyleSheet.create({
     },
     input: {
         borderWidth: 1,
-        borderColor: "#22c55e",
+        borderColor: "#0d4d4f",
+        backgroundColor: "#0d2d2f",
         borderRadius: 8,
         padding: 10,
         color: "#ffffff",
@@ -256,4 +274,9 @@ const styles = StyleSheet.create({
         fontWeight: "bold",
         textAlign: "center",
     },
+
+    listDefaultText: {
+        color: "#ffffff",
+        textAlign: "center",
+    }
 });

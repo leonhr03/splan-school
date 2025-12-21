@@ -1,349 +1,550 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import {
-    SafeAreaView,
     StyleSheet,
+    SafeAreaView,
     Text,
+    FlatList,
     View,
     TouchableOpacity,
     Modal,
     TextInput,
-    ScrollView,
-    Alert,
+    TouchableWithoutFeedback, Platform,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Ionicons } from "@expo/vector-icons";
+import TimePickerModal from "../../components/TimePickerModal";
 
-type Weekday = "Mo" | "Di" | "Mi" | "Do" | "Fr";
-type TimeSlot = string;
+export default function TimeTable() {
+    const [editModal, setEditModal] = useState(false);
+    const [addAlert, setAddAlert] = useState(false);
+    const [editItemModal, setEditItemModal] = useState(false);
 
-interface Schedule {
-    [day: string]: {
-        [time: string]: string;
-    };
-}
+    const [newStartTime, setNewStartTime] = useState("");
+    const [newEndTime, setNewEndTime] = useState("");
+    const [newSubject, setNewSubject] = useState("");
+    const [editIndex, setEditIndex] = useState<number | null>(null);
 
-export default function TeacherSchedule() {
-    const weekdays: Weekday[] = ["Mo", "Di", "Mi", "Do", "Fr"];
+    // Separate Picker States
+    const [showAddStartPicker, setShowAddStartPicker] = useState(false);
+    const [showAddEndPicker, setShowAddEndPicker] = useState(false);
+    const [showEditStartPicker, setShowEditStartPicker] = useState(false);
+    const [showEditEndPicker, setShowEditEndPicker] = useState(false);
 
-    const [schedule, setSchedule] = useState<Schedule>({});
-    const [times, setTimes] = useState<TimeSlot[]>([
-        "08:00",
-        "09:00",
-        "10:00",
-        "11:00",
-        "12:00",
-        "13:00",
-        "14:00",
-    ]);
-
-    const [modalVisible, setModalVisible] = useState(false);
-    const [selectedDay, setSelectedDay] = useState<Weekday | "">("");
-    const [selectedTime, setSelectedTime] = useState<TimeSlot | "">("");
-    const [subject, setSubject] = useState<string>("");
-
-    const [timeModalVisible, setTimeModalVisible] = useState(false);
-
-    const [timeInputs, setTimeInputs] = useState<string[]>([]);
+    const [plan, setPlan] = useState<{ timeStart: string; timeEnd: string; subject: string }[]>([]);
+    const [days] = useState(["Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag"]);
+    const [dayIndex, setDayIndex] = useState(0);
+    const currentKey = `plan_${days[dayIndex]}`;
 
     useEffect(() => {
-        const loadData = async () => {
-            try {
-                const scheduleJson = await AsyncStorage.getItem("schedule");
-                if (scheduleJson) setSchedule(JSON.parse(scheduleJson));
+        loadPlan();
+    }, [dayIndex]);
 
-                const timesJson = await AsyncStorage.getItem("times");
-                if (timesJson) {
-                    setTimes(JSON.parse(timesJson));
-                }
-            } catch (e) {
-                console.log("Fehler beim Laden:", e);
-            }
-        };
-        loadData();
-    }, []);
-
-    useEffect(() => {
-        setTimeInputs(times);
-    }, [times, timeModalVisible]);
-
-    const openModal = (day: Weekday, time: TimeSlot) => {
-        setSelectedDay(day);
-        setSelectedTime(time);
-        setSubject(schedule[day]?.[time] || "");
-        setModalVisible(true);
-    };
-
-    const saveSubject = async () => {
-        if (!subject.trim()) {
-            Alert.alert("Fehler", "Bitte eine Stunde eingeben!");
-            return;
-        }
-
-        const newSchedule = { ...schedule };
-        if (!newSchedule[selectedDay!]) newSchedule[selectedDay!] = {};
-        newSchedule[selectedDay!][selectedTime!] = subject;
-
-        setSchedule(newSchedule);
-        setModalVisible(false);
-
+    const loadPlan = async () => {
         try {
-            await AsyncStorage.setItem("schedule", JSON.stringify(newSchedule));
+            const stored = await AsyncStorage.getItem(currentKey);
+            if (stored) setPlan(JSON.parse(stored));
+            else setPlan([]);
         } catch (e) {
-            console.log("Fehler beim Speichern des Stundenplans:", e);
+            console.log("Fehler beim Laden:", e);
         }
     };
 
-    const saveTimes = async (newTimes: string[]) => {
-        setTimes(newTimes);
-        setTimeModalVisible(false);
+    const savePlan = async (newPlan: any[]) => {
         try {
-            await AsyncStorage.setItem("times", JSON.stringify(newTimes));
+            await AsyncStorage.setItem(currentKey, JSON.stringify(newPlan));
         } catch (e) {
-            console.log("Fehler beim Speichern der Zeiten:", e);
+            console.log("Fehler beim Speichern:", e);
         }
     };
 
-    const addTime = () => {
-        const newArr = [...timeInputs, ""];
-        setTimeInputs(newArr);
+    const addSubject = async () => {
+        if (!newStartTime || !newEndTime || !newSubject.trim()) return;
+        const newPlanList = [...plan, { timeStart: newStartTime, timeEnd: newEndTime, subject: newSubject }];
+        setPlan(newPlanList);
+        await savePlan(newPlanList);
+        setNewStartTime("");
+        setNewEndTime("");
+        setNewSubject("");
+        setAddAlert(false);
     };
 
-    const removeTime = (index: number) => {
-        const newArr = [...timeInputs];
-        newArr.splice(index, 1);
-        setTimeInputs(newArr);
+    const deleteSubject = async (index: number) => {
+        const updatedPlan = plan.filter((_, i) => i !== index);
+        setPlan(updatedPlan);
+        await savePlan(updatedPlan);
     };
+
+    const startEditItem = (index: number) => {
+        setEditIndex(index);
+        const item = plan[index];
+        setNewStartTime(item.timeStart);
+        setNewEndTime(item.timeEnd);
+        setNewSubject(item.subject);
+        setEditItemModal(true);
+    };
+
+    const saveEditedItem = async () => {
+        if (editIndex === null) return;
+        const updated = [...plan];
+        updated[editIndex] = { timeStart: newStartTime, timeEnd: newEndTime, subject: newSubject };
+        setPlan(updated);
+        await savePlan(updated);
+        setEditIndex(null);
+        setEditItemModal(false);
+        setNewStartTime("");
+        setNewEndTime("");
+        setNewSubject("");
+    };
+
+    const flatListItem = ({ item }: any) => {
+        const isPause = item.subject.trim().toLowerCase() === "pause";
+        if (isPause) {
+            return (
+                <View style={styles.pauseContainer}>
+                    <View style={styles.pauseLine} />
+                </View>
+            );
+        }
+        return (
+            <View style={styles.cardContainer}>
+                <View style={styles.itemLeft}>
+                    <Text style={styles.timeTextStart}>{item.timeStart} -</Text>
+                    <Text style={styles.timeTextEnd}>{item.timeEnd}</Text>
+                </View>
+                <View style={styles.itemRight}>
+                    <Text style={styles.itemText}>{item.subject}</Text>
+                </View>
+            </View>
+        );
+    };
+
+    const renderItem = ({ item, index }: any) => (
+        <TouchableOpacity style={styles.cardContainer} onLongPress={() => deleteSubject(index)}>
+            <View style={styles.itemLeft}>
+                <Text style={styles.timeTextStart}>{item.timeStart} -</Text>
+                <Text style={styles.timeTextEnd}>{item.timeEnd}</Text>
+            </View>
+            <View style={styles.itemRight}>
+                <Text style={styles.itemText}>{item.subject}</Text>
+            </View>
+            <View style={styles.itemButtons}>
+                <TouchableOpacity onPress={() => startEditItem(index)}>
+                    <Ionicons name="pencil" size={20} color="#22c55e" />
+                </TouchableOpacity>
+            </View>
+        </TouchableOpacity>
+    );
+
+    const dayBefore = () => {
+        if (dayIndex > 0) setDayIndex(dayIndex - 1); };
+
+    const nextDay = () => {
+        if (dayIndex < days.length - 1) setDayIndex(dayIndex + 1); };
+
 
     return (
         <SafeAreaView style={styles.container}>
-            <View style={styles.headerLayout}>
+            <View style={styles.header}>
                 <Text style={styles.heading}>Stundenplan</Text>
-                <TouchableOpacity
-                    style={{ position: "absolute", right: 16 }}
-                    onPress={() => setTimeModalVisible(true)}
-                >
-                    <Ionicons name="options" size={26} color="#22c55e" />
+                <TouchableOpacity style={styles.edit} onPress={() => setEditModal(true)}>
+                    <Ionicons name={"pencil"} color={"#22c55e"} size={26} />
                 </TouchableOpacity>
             </View>
 
-            <ScrollView horizontal>
-                <View>
-                    {/* Header */}
-                    <View style={styles.row}>
-                        <View style={styles.timeCell} />
-                        {weekdays.map((day) => (
-                            <View key={day} style={styles.headerCell}>
-                                <Text style={styles.headerText}>{day}</Text>
-                            </View>
-                        ))}
-                    </View>
+            <View style={styles.topRow}>
+                <TouchableOpacity style={styles.buttonLeft} onPress={dayBefore}>
+                    <Ionicons name={"arrow-back"} color={"#fff"} size={20} />
+                </TouchableOpacity>
+                <Text style={styles.dayText}>{days[dayIndex]}</Text>
+                <TouchableOpacity style={styles.buttonRight} onPress={nextDay}>
+                    <Ionicons name={"arrow-forward"} color={"#fff"} size={20} />
+                </TouchableOpacity>
+            </View>
 
-                    {/* Stunden */}
-                    {times.map((time, timeIndex) => (
-                        <View key={time + timeIndex} style={styles.row}>
-                            <View style={styles.timeCell}>
-                                <Text style={styles.timeText}>{time}</Text>
-                            </View>
+            <FlatList
+                style={styles.planList}
+                data={plan}
+                renderItem={flatListItem}
+                keyExtractor={(_, i) => i.toString()}
+            />
 
-                            {weekdays.map((day) => {
-                                const isThickBorder = (timeIndex + 1) % 2 === 0;
-                                return (
-                                    <TouchableOpacity
-                                        key={day + time}
-                                        style={[
-                                            styles.cell,
-                                            isThickBorder && { borderBottomWidth: 4 },
-                                        ]}
-                                        onPress={() => openModal(day, time)}
-                                    >
-                                        <Text style={styles.cellText}>
-                                            {schedule[day]?.[time] || ""}
-                                        </Text>
-                                    </TouchableOpacity>
-                                );
-                            })}
-                        </View>
-                    ))}
-                </View>
-            </ScrollView>
 
-            {/* Modal Fach eintragen */}
-            <Modal animationType="slide" transparent visible={modalVisible}>
-                <View style={styles.modalBackground}>
+
+            {/* Edit Modal */}
+            <Modal transparent animationType="slide" visible={editModal}>
+                <View style={styles.modalOverlay}>
+                    <TouchableWithoutFeedback onPress={() => setEditModal(false)}>
+                        <View style={StyleSheet.absoluteFillObject} />
+                    </TouchableWithoutFeedback>
                     <View style={styles.modalContainer}>
-                        <Text style={styles.modalHeading}>
-                            {selectedDay} - {selectedTime}
-                        </Text>
-                        <TextInput
-                            style={styles.input}
-                            placeholder="Fach eingeben"
-                            placeholderTextColor="#888"
-                            value={subject}
-                            onChangeText={setSubject}
-                        />
-                        <TouchableOpacity style={styles.button} onPress={saveSubject}>
-                            <Text style={styles.buttonText}>Speichern</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity
-                            style={[styles.button, styles.cancelButton]}
-                            onPress={() => setModalVisible(false)}
-                        >
-                            <Text style={styles.buttonText}>Abbrechen</Text>
-                        </TouchableOpacity>
-                    </View>
-                </View>
-            </Modal>
-
-            {/* Modal Zeiten bearbeiten */}
-            <Modal animationType="slide" transparent visible={timeModalVisible}>
-                <View style={styles.modalBackground}>
-                    <View style={styles.modalContainer}>
-                        <Text style={styles.modalHeading}>Zeiten einstellen</Text>
-
-                        <ScrollView style={{ maxHeight: 400 }}>
-                            {timeInputs.map((t, index) => (
-                                <View key={index} style={styles.timeEditRow}>
-                                    <View style={{ flex: 1 }}>
-                                        <Text style={styles.timeLabel}>Zeit {index + 1}</Text>
-                                        <TextInput
-                                            style={styles.input}
-                                            value={t}
-                                            onChangeText={(text) => {
-                                                const newArr = [...timeInputs];
-                                                newArr[index] = text;
-                                                setTimeInputs(newArr);
-                                            }}
-                                            placeholder="z.B. 08:00"
-                                            placeholderTextColor="#888"
-                                        />
-                                    </View>
-                                    <TouchableOpacity
-                                        onPress={() => removeTime(index)}
-                                        style={styles.deleteButton}
-                                    >
-                                        <Ionicons name="trash" size={22} color="white" />
-                                    </TouchableOpacity>
-                                </View>
-                            ))}
-
-                            <TouchableOpacity
-                                style={styles.addButton}
-                                onPress={addTime}
-                            >
-                                <Ionicons name="add" size={22} color="#000" />
-                                <Text style={styles.addButtonText}>Zeit hinzufügen</Text>
+                        <Text style={[styles.heading, {marginTop: 20}]}>{days[dayIndex]}</Text>
+                        <View style={styles.listCard}>
+                            <FlatList
+                                data={plan}
+                                renderItem={renderItem}
+                                keyExtractor={(_, i) => i.toString()}
+                            />
+                            <TouchableOpacity style={styles.addFab} onPress={() => { setNewStartTime(""), setNewEndTime(""), setNewSubject(""), setAddAlert(true) }}>
+                                <Text style={styles.fabText}>+</Text>
                             </TouchableOpacity>
-                        </ScrollView>
-
-                        <TouchableOpacity
-                            style={styles.button}
-                            onPress={() => saveTimes(timeInputs)}
-                        >
-                            <Text style={styles.buttonText}>Speichern</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity
-                            style={[styles.button, styles.cancelButton]}
-                            onPress={() => setTimeModalVisible(false)}
-                        >
-                            <Text style={styles.buttonText}>Abbrechen</Text>
-                        </TouchableOpacity>
+                        </View>
                     </View>
                 </View>
+
+                {/* Add Subject Modal */}
+                <Modal transparent animationType="fade" visible={addAlert}>
+                    <View style={styles.alertOverlay}>
+                        <TouchableWithoutFeedback onPress={() => setAddAlert(false)}>
+                            <View style={StyleSheet.absoluteFillObject} />
+                        </TouchableWithoutFeedback>
+                        <View style={styles.alertContainer}>
+                            <Text style={[styles.heading, {marginTop: 20}]}>Neue Stunde</Text>
+                            <View style={styles.timeRow}>
+                                <TouchableOpacity style={styles.textInputRow} onPress={() => setShowAddStartPicker(true)}>
+                                    <Text style={{ color: "#22c55e", textAlign: "center" }}>
+                                        {newStartTime || "Startzeit wählen"}
+                                    </Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity style={styles.textInputRow} onPress={() => setShowAddEndPicker(true)}>
+                                    <Text style={{ color: "#22c55e", textAlign: "center" }}>
+                                        {newEndTime || "Endzeit wählen"}
+                                    </Text>
+                                </TouchableOpacity>
+                            </View>
+                            <TextInput
+                                style={styles.textInput}
+                                value={newSubject}
+                                onChangeText={setNewSubject}
+                                placeholder="Fach"
+                                placeholderTextColor="#22c55e"
+                            />
+                            <TouchableOpacity style={styles.addButton} onPress={addSubject}>
+                                <Text style={styles.buttonText}>Hinzufügen</Text>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+
+                    {/* TimePickers */}
+                    <TimePickerModal
+                        visible={showAddStartPicker}
+                        onClose={() => setShowAddStartPicker(false)}
+                        onConfirm={(time) => setNewStartTime(time)}
+                    />
+                    <TimePickerModal
+                        visible={showAddEndPicker}
+                        onClose={() => setShowAddEndPicker(false)}
+                        onConfirm={(time) => setNewEndTime(time)}
+                    />
+                </Modal>
+
+                {/* Edit Subject Modal */}
+                <Modal transparent animationType="fade" visible={editItemModal}>
+                    <View style={styles.alertOverlay}>
+                        <TouchableWithoutFeedback onPress={() => setEditItemModal(false)}>
+                            <View style={StyleSheet.absoluteFillObject} />
+                        </TouchableWithoutFeedback>
+                        <View style={styles.alertContainer}>
+                            <Text style={[styles.heading, {marginTop: 20}]}>Stunde bearbeiten</Text>
+                            <View style={styles.timeRow}>
+                                <TouchableOpacity style={styles.textInputRow} onPress={() => setShowEditStartPicker(true)}>
+                                    <Text style={{ color: "#22c55e", textAlign: "center" }}>
+                                        {newStartTime || "Startzeit wählen"}
+                                    </Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity style={styles.textInputRow} onPress={() => setShowEditEndPicker(true)}>
+                                    <Text style={{ color: "#22c55e", textAlign: "center" }}>
+                                        {newEndTime || "Endzeit wählen"}
+                                    </Text>
+                                </TouchableOpacity>
+                            </View>
+                            <TextInput
+                                style={styles.textInput}
+                                value={newSubject}
+                                onChangeText={setNewSubject}
+                                placeholder="Fach"
+                                placeholderTextColor="#22c55e"
+                            />
+                            <TouchableOpacity style={styles.addButton} onPress={saveEditedItem}>
+                                <Text style={styles.buttonText}>Speichern</Text>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+
+                    <TimePickerModal
+                        visible={showEditStartPicker}
+                        onClose={() => setShowEditStartPicker(false)}
+                        onConfirm={(time) => setNewStartTime(time)}
+                    />
+                    <TimePickerModal
+                        visible={showEditEndPicker}
+                        onClose={() => setShowEditEndPicker(false)}
+                        onConfirm={(time) => setNewEndTime(time)}
+                    />
+                </Modal>
+
             </Modal>
+
+
         </SafeAreaView>
     );
 }
 
-const CELL_HEIGHT = 60;
-const CELL_WIDTH = 100;
-
 const styles = StyleSheet.create({
-    container: { flex: 1, backgroundColor: "#000", padding: 16 },
-    headerLayout: {
-        width: "100%",
-        flexDirection: "row",
-        alignItems: "center",
-        justifyContent: "center",
-        marginTop: 20,
-        marginBottom: 40,
-    },
-    heading: { fontSize: 26, fontWeight: "bold", color: "#22c55e", textAlign: "center", flex: 1 },
-    row: { flexDirection: "row" },
-    timeCell: {
-        width: CELL_WIDTH / 2,
-        height: CELL_HEIGHT,
-        borderWidth: 1,
-        borderColor: "#22c55e",
-        justifyContent: "center",
-        alignItems: "center",
-        backgroundColor: "#1f1f1f",
-    },
-    headerCell: {
-        width: CELL_WIDTH,
-        height: CELL_HEIGHT,
-        borderWidth: 1,
-        borderColor: "#22c55e",
-        justifyContent: "center",
-        alignItems: "center",
-        backgroundColor: "#1f1f1f",
-    },
-    headerText: { color: "#22c55e", fontWeight: "bold", textAlign: "center" },
-    timeText: { color: "#fff", fontWeight: "bold" },
-    cell: {
-        width: CELL_WIDTH,
-        height: CELL_HEIGHT,
-        borderWidth: 1,
-        borderColor: "#22c55e",
-        justifyContent: "center",
-        alignItems: "center",
-        backgroundColor: "#000",
-    },
-    cellText: { color: "#fff", textAlign: "center" },
-    modalBackground: {
+    container: {
         flex: 1,
-        backgroundColor: "rgba(0,0,0,0.6)",
-        justifyContent: "center",
+        padding: 16,
+        backgroundColor: "#0d1d1f",
         alignItems: "center",
     },
-    modalContainer: {
-        width: "85%",
-        backgroundColor: "#1f1f1f",
-        borderRadius: 10,
-        padding: 20,
+
+    itemButtons: {
+        flexDirection: "row",
+        gap: 10,
+        position: "absolute",
+        right: 15,
     },
-    modalHeading: { color: "#22c55e", fontSize: 18, fontWeight: "bold", marginBottom: 15 },
-    input: {
-        borderWidth: 1,
-        borderColor: "#22c55e",
-        borderRadius: 8,
-        padding: 10,
+
+    heading: {
+        fontSize: 26,
+        fontWeight: "bold",
+        color: "#22c55e",
+        textAlign: "center",
+    },
+
+    edit: {
+        alignItems: "center",
+        justifyContent: "center",
+        position: "absolute",
+        right: 20,
+    },
+
+    editIcon: {
+        fontSize: 20,
         color: "#fff",
-        marginBottom: 10,
     },
-    button: {
-        backgroundColor: "#22c55e",
-        borderRadius: 8,
-        paddingVertical: 10,
-        marginTop: 10,
-    },
-    cancelButton: { backgroundColor: "#555" },
-    buttonText: { color: "#000", fontWeight: "bold", textAlign: "center" },
-    timeEditRow: { flexDirection: "row", alignItems: "center", marginBottom: 8 },
-    deleteButton: {
-        marginLeft: 8,
-        backgroundColor: "#c0392b",
+    topRow: {
+        flexDirection: "row",
+        justifyContent: "center",
+        alignItems: "center",
+        position: "relative",
+        marginTop: 25,
+        marginBottom: 20,
+        width: "95%",
+        borderWidth: 2,
+        borderColor: "#0d4d4f",
+        backgroundColor: "#0d2d2f",
+        borderRadius: 20,
         padding: 10,
-        borderRadius: 8,
     },
+
+    dayText: {
+        alignSelf: "center",
+        color: "#22c55e",
+        fontSize: 23,
+    },
+
+    buttonLeft: {
+        position: "absolute",
+        left: 40,
+        width: 30,
+        height: 30,
+        backgroundColor: "#22c55e",
+        borderRadius: 15,
+        alignItems: "center",
+        justifyContent: "center",
+    },
+
+    buttonRight: {
+        position: "absolute",
+        right: 40,
+        width: 30,
+        height: 30,
+        backgroundColor: "#22c55e",
+        borderRadius: 15,
+        alignItems: "center",
+        justifyContent: "center",
+    },
+
+    planList: {
+        marginBottom: 70,
+    },
+
+    cardContainer: {
+        flex: 1,
+        flexDirection: "row",
+        justifyContent: "space-between",
+        alignItems: "center",
+        alignSelf: "center",
+        borderWidth: 2,
+        height: 60,
+        width: "95%",
+        marginVertical: 10,
+        borderColor: "#0d4d4f",
+        backgroundColor: "#0d2d2f",
+        borderRadius: 30,
+        padding: 10,
+
+    },
+
+    itemLeft: {
+        alignSelf: "flex-start",
+        flexDirection: "column",
+        marginLeft: 10,
+    },
+
+    itemRight: {
+        flex: 1,
+        alignItems: "center",
+        justifyContent: "center",
+    },
+
+    timeTextStart: {
+        color: "#666"
+    },
+
+    timeTextEnd: {
+        color: "#666"
+    },
+
+    itemText: {
+        alignSelf: "flex-start",
+        fontSize: 20,
+        color: "#22c55e",
+        marginLeft: 30,
+    },
+
+    modalOverlay: {
+        flex: 1,
+        backgroundColor: "rgba(0, 0, 0, 0.3)",
+        alignItems: "center",
+        justifyContent: "flex-end",
+    },
+
+    modalContainer: {
+        alignSelf: "center",
+        alignItems: "center",
+        justifyContent: "flex-end",
+        width: "100%",
+        backgroundColor: "#0d1d1f",
+        borderColor: "#0d3d3f",
+        padding: 16,
+        borderTopLeftRadius: 20,
+        borderTopRightRadius: 20,
+    },
+
+    listCard: {
+        borderWidth: 2,
+        borderColor: "#0d4d4f",
+        backgroundColor: "#0d2d2f",
+        borderRadius: 15,
+        padding: 10,
+        width: "95%",
+        height: 300,
+        marginTop: 20,
+        marginBottom: 20,
+    },
+
+    addFab: {
+        position: "absolute",
+        right: 10,
+        bottom: 10,
+        backgroundColor: "#22c55e",
+        height: 50,
+        width: 50,
+        borderRadius: 25,
+        alignItems: "center",
+        justifyContent: "center",
+    },
+
+    fabText: {
+        fontSize: 20,
+        color: "#fff"
+    },
+
+    alertOverlay: {
+        flex: 1,
+        backgroundColor: "rgba(0, 0, 0, 0.1)",
+        alignItems: "center",
+        justifyContent: "center",
+    },
+
+    alertContainer: {
+        alignSelf: "center",
+        alignItems: "center",
+        justifyContent: "center",
+        width: "95%",
+        backgroundColor: "#0d1d1f",
+        borderColor: "#0d3d3f",
+        padding: 16,
+        borderRadius: 20,
+    },
+
+    timeRow: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+        alignItems: "center",
+    },
+
+    textInputRow: {
+        padding: 10,
+        color: "#22c55e",
+        borderRadius: 20,
+        borderWidth: 2,
+        borderColor: "#0d4d4f",
+        backgroundColor: "#0d2d2f",
+        width: "45%",
+        marginHorizontal: 5,
+        marginTop: 20,
+    },
+
+    textInput: {
+        padding: 10,
+        color: "#22c55e",
+        borderRadius: 20,
+        borderWidth: 2,
+        borderColor: "#0d4d4f",
+        backgroundColor: "#0d2d2f",
+        width: "95%",
+        marginHorizontal: 5,
+        marginTop: 20,
+    },
+
     addButton: {
+        backgroundColor: "#22c55e",
+        borderRadius: 15,
+        padding: 10,
+        width: "95%",
+        marginTop: 20,
+        alignItems: "center",
+        justifyContent: "center",
+    },
+
+    buttonText: {
+        color: "#ffffff",
+        fontSize: 20,
+    },
+
+    pauseContainer: {
+        width: "30%",
+        alignSelf: "center",
+        alignItems: "center",
+        marginVertical: 10,
+    },
+    pauseLine: {
+        width: "90%",
+        height: 2,
+        backgroundColor: "#22c55e",
+        borderRadius: 1,
+    },
+
+    header: {
         flexDirection: "row",
         alignItems: "center",
-        backgroundColor: "#22c55e",
-        padding: 10,
-        borderRadius: 8,
         justifyContent: "center",
-        marginTop: 10,
+        marginTop: Platform.OS === "ios" ? 20 : 30,
+        paddingHorizontal: 16,
+        position: "relative",
+        width: "100%",
     },
-    addButtonText: { color: "#000", fontWeight: "bold", marginLeft: 6 },
-    timeLabel: { color: "#22c55e", marginBottom: 5 },
-});
+
+})

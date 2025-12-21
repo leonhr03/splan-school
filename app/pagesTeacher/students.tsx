@@ -93,6 +93,9 @@ export default function Students() {
                     <Ionicons name="arrow-back" size={30} color="#22c55e" />
                 </TouchableOpacity>
                 <Text style={styles.heading}>{heading.subject}</Text>
+                <TouchableOpacity style={styles.addFab} onPress={() => setAddStudentAlert(true)}>
+                    <Ionicons name="add" size={35} color="#22c55e" />
+                </TouchableOpacity>
             </View>
 
             {/* Students List */}
@@ -103,10 +106,6 @@ export default function Students() {
                 keyExtractor={(item, index) => index.toString()}
             />
 
-            {/* Add Student FAB */}
-            <TouchableOpacity style={styles.addFab} onPress={() => setAddStudentAlert(true)}>
-                <Text style={styles.fabText}>+</Text>
-            </TouchableOpacity>
 
             {/* Add Student Modal */}
             <Modal transparent animationType="fade" visible={addStudentAlert}>
@@ -189,21 +188,21 @@ export default function Students() {
 }
 
 const styles = StyleSheet.create({
-    container: { flex: 1, backgroundColor: "#000000", padding: 16, alignItems: "center" },
+    container: { flex: 1, backgroundColor: "#0d1d1f", padding: 16, alignItems: "center" },
     heading: { fontSize: 26, color: "#22c55e", fontWeight: "bold" },
-    addFab: { position: "absolute", right: 30, bottom: 30, height: 60, width: 60, borderRadius: 30, backgroundColor: "#22c55e", alignItems: "center", justifyContent: "center" },
+    addFab: { position: "absolute", right: 20 },
     fabText: { fontSize: 22, color: "#fff" },
-    itemContainer: { flex: 1, justifyContent: "center", marginBottom: 20 },
-    border: { width: "90%", height: 60, borderWidth: 2, borderColor: "#22c55e", borderRadius: 30, alignItems: "center", justifyContent: "center", marginHorizontal: 20 },
+    itemContainer: { flex: 1, justifyContent: "center", marginBottom: 20, backgroundColor: "#0d2d2f", borderColor: "#0d4d4f" ,borderRadius: 15, borderWidth: 2,padding: 16 , width: "95%", alignSelf: "center"},
+    border: { width: "90%", height: 60, borderWidth: 2, backgroundColor: "#0d3d3f" , borderColor: "#0d4d4f", borderRadius: 30, alignItems: "center", justifyContent: "center", marginHorizontal: 20 },
     text: { fontSize: 25, color: "#22c55e" },
     studentsList: { marginTop: 20, width: "100%" },
     modalOverlay: { flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: "rgba(0,0,0,0.6)" },
-    addAlertContainer: { width: "95%", alignItems: "center", backgroundColor: "#111111", borderRadius: 15, padding: 16 },
+    addAlertContainer: { width: "95%", alignItems: "center", backgroundColor: "#0d1d1f", borderRadius: 15, padding: 16 },
     addAlertHeading: { fontSize: 25, color: "#22c55e", marginTop: 20, marginBottom: 20, fontWeight: "bold" },
-    addAlertTextInput: { backgroundColor: "#111", borderColor: "#22c55e", borderRadius: 15, borderWidth: 2, padding: 14, width: "80%", color: "#fff" },
+    addAlertTextInput: { backgroundColor: "#0d2d2f", borderColor: "#0d4d4f", borderRadius: 15, borderWidth: 2, padding: 14, width: "80%", color: "#fff" },
     addAlertButton: { backgroundColor: "#22c55e", borderRadius: 15, height: 50, alignItems: "center", justifyContent: "center", padding: 10, marginTop: 20, marginBottom: 20 },
     addAlertButtonText: { fontSize: 20, color: "#ffffff", fontWeight: "bold" },
-    chooseItem: { borderWidth: 2, borderColor: "#22c55e", borderRadius: 15, padding: 16, alignItems: "center", justifyContent: "center", width: "80%", marginBottom: 20 },
+    chooseItem: { borderWidth: 2, borderColor: "#0d4d4f", backgroundColor: "#0d2d2f", borderRadius: 15, padding: 16, alignItems: "center", justifyContent: "center", width: "80%", marginBottom: 20 },
     chooseText: { fontSize: 20, color: "#ffffff" },
     headerLayout: { width: "100%", flexDirection: "row", alignItems: "center", justifyContent: "center", marginTop: 20, marginBottom: 10 },
     backButton: { alignItems: "center", justifyContent: "center", position: "absolute", left: 20 },
