@@ -48,7 +48,13 @@ export default function Index() {
 
 
     if (step === null) {
-        return <SafeAreaView style={styles.container} />;
+        return (
+            <SafeAreaView style={styles.container}>
+                <Text style={{ color: "white", textAlign: "center", marginTop: 100 }}>
+                    Loading...
+                </Text>
+            </SafeAreaView>
+        );
     }
 
     return (

@@ -128,9 +128,9 @@ export default function ChooseGrade() {
         if (ex !== null && mu !== null) {
             const totalWeight = weightExam + weightMund;
             ges = ((ex * weightExam + mu * weightMund) / totalWeight).toFixed(1);
-        } else if (ex !== null) {
+        } else if (ex !== null && mu === null) {
             ges = ex.toFixed(1);
-        } else if (mu !== null) {
+        } else if (mu !== null && ex === null) {
             ges = mu.toFixed(1);
         }
 

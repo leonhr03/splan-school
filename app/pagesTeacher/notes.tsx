@@ -7,10 +7,7 @@ import {
     Text,
     TouchableOpacity,
     View,
-    TextInput,
-    KeyboardAvoidingView,
-    ScrollView,
-    Platform,
+
 } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
@@ -21,15 +18,9 @@ export default function NotesPage() {
     const studentData: any = useLocalSearchParams();
 
     const [notes, setNotes] = useState<any[]>([]);
-    const [selectedItem, setSelectedItem] = useState<any>(null);
-    const [editableContent, setEditableContent] = useState("");
-    const [detailView, setDetailView] = useState(false);
     const [deleteModalVisible, setDeleteModalVisible] = useState(false);
     const [deleteIndex, setDeleteIndex] = useState<number | null>(null);
     const [deleteItemName, setDeleteItemName] = useState<string>("");
-    const [addModalVisible, setAddModalVisible] = useState(false);
-    const [newHeading, setNewHeading] = useState("");
-    const [newContent, setNewContent] = useState("");
 
     useEffect(() => {
         const load = async () => {
@@ -63,58 +54,13 @@ export default function NotesPage() {
         }
     };
 
-    const saveEditedNote = async () => {
-        if (!selectedItem) return;
-        try {
-            const updatedNotes = notes.map((note) =>
-                note.heading === selectedItem.heading
-                    ? { ...note, content: editableContent }
-                    : note
-            );
-            setNotes(updatedNotes);
-            await AsyncStorage.setItem(
-                `notesList/${studentData.student}/${studentData.subject}`,
-                JSON.stringify(updatedNotes)
-            );
-            setDetailView(false);
-        } catch (err) {
-            alert(`Fehler beim Speichern: ${err}`);
-        }
-    };
-
-    const addNote = async () => {
-        if (!newHeading.trim()) {
-            alert("Bitte gib einen Titel ein!");
-            return;
-        }
-
-        try {
-            const newNote = { heading: newHeading.trim(), content: newContent.trim() };
-            const updatedNotes = [...notes, newNote];
-            setNotes(updatedNotes);
-
-            await AsyncStorage.setItem(
-                `notesList/${studentData.student}/${studentData.subject}`,
-                JSON.stringify(updatedNotes)
-            );
-
-            setNewHeading("");
-            setNewContent("");
-            setAddModalVisible(false);
-        } catch (err) {
-            alert(`Fehler beim Hinzufügen: ${err}`);
-        }
-    };
-
     const renderItem = ({ item }: any) => {
         return (
             <View style={styles.itemContainer}>
                 <TouchableOpacity
                     style={styles.border}
                     onPress={() => {
-                        setSelectedItem(item);
-                        setEditableContent(item.content || "");
-                        setDetailView(true);
+                        router.replace({pathname: "/pagesTeacher/noteDetail", params: {student: studentData.student, subject: studentData.subject, heading: item.heading, content: item.content}});
                     }}
                     onLongPress={() => {
                         setDeleteIndex(notes.indexOf(item));
@@ -122,13 +68,13 @@ export default function NotesPage() {
                         setDeleteModalVisible(true);
                     }}
                 >
-                    <Text style={styles.itemText}>{item.heading}</Text>
-                    <Ionicons
-                        name="arrow-forward"
-                        size={20}
-                        color="#22c55e"
-                        style={styles.arrowForward}
-                    />
+                    <Text style={styles.itemHeading}>
+                        {item.heading}
+                    </Text>
+
+                    <Text style={styles.itemContent} numberOfLines={3} ellipsizeMode="tail">
+                        {item.content}
+                    </Text>
                 </TouchableOpacity>
             </View>
         );
@@ -149,7 +95,7 @@ export default function NotesPage() {
                     <Ionicons name="arrow-back" size={30} color="#22c55e" />
                 </TouchableOpacity>
                 <Text style={styles.heading}>{studentData.student}</Text>
-                <TouchableOpacity style={styles.addFab} onPress={() => setAddModalVisible(true)}>
+                <TouchableOpacity style={styles.addFab} onPress={() => router.replace({pathname: "/pagesTeacher/noteDetail", params: { subject: studentData.subject, student: studentData.student } })}>
                     <Ionicons name={"add"} size={35} color={"#22e55c"}/>
                 </TouchableOpacity>
             </View>
@@ -160,53 +106,6 @@ export default function NotesPage() {
                 renderItem={renderItem}
                 keyExtractor={(_, index) => index.toString()}
             />
-
-
-
-            <Modal transparent animationType="fade" visible={detailView}>
-                <View style={styles.modalOverlay}>
-                    <KeyboardAvoidingView
-                        behavior={Platform.OS === "ios" ? "padding" : undefined}
-                        style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
-                    >
-                        <SafeAreaView style={styles.modalContainer}>
-                            <Text style={styles.modalHeading}>{selectedItem?.heading}</Text>
-
-                            <ScrollView
-                                style={styles.modalScrollLarge}
-                                contentContainerStyle={{ paddingBottom: 100 }}
-                                showsVerticalScrollIndicator={false}
-                            >
-                                <TextInput
-                                    style={styles.modalContentInputLarge}
-                                    value={editableContent}
-                                    onChangeText={setEditableContent}
-                                    multiline
-                                    placeholder="Notiz schreiben..."
-                                    placeholderTextColor="#555"
-                                    textAlignVertical="top"
-                                />
-                            </ScrollView>
-
-                            <View style={styles.modalButtonRow}>
-                                <TouchableOpacity
-                                    style={[styles.modalButton, { backgroundColor: "#333" }]}
-                                    onPress={() => setDetailView(false)}
-                                >
-                                    <Text style={styles.modalButtonText}>Abbrechen</Text>
-                                </TouchableOpacity>
-
-                                <TouchableOpacity
-                                    style={[styles.modalButton, { backgroundColor: "#22c55e" }]}
-                                    onPress={saveEditedNote}
-                                >
-                                    <Text style={styles.modalButtonText}>Speichern</Text>
-                                </TouchableOpacity>
-                            </View>
-                        </SafeAreaView>
-                    </KeyboardAvoidingView>
-                </View>
-            </Modal>
 
             <Modal transparent animationType="fade" visible={deleteModalVisible}>
                 <View style={styles.modalOverlay}>
@@ -229,61 +128,6 @@ export default function NotesPage() {
                     </View>
                 </View>
             </Modal>
-
-            <Modal transparent animationType="fade" visible={addModalVisible}>
-                <View style={styles.modalOverlay}>
-                    <KeyboardAvoidingView
-                        behavior={Platform.OS === "ios" ? "padding" : undefined}
-                        style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
-                    >
-                        <SafeAreaView style={styles.modalContainer}>
-                            <Text style={styles.modalHeading}>Neue Notiz</Text>
-
-                            <ScrollView
-                                style={styles.modalScrollLarge}
-                                contentContainerStyle={{ paddingBottom: 100 }}
-                                showsVerticalScrollIndicator={false}
-                            >
-                                <TextInput
-                                    style={[
-                                        styles.modalContentInputLarge,
-                                        { fontSize: 22, fontWeight: "bold", marginBottom: 4 },
-                                    ]}
-                                    placeholder="Titel..."
-                                    placeholderTextColor="#555"
-                                    value={newHeading}
-                                    onChangeText={setNewHeading}
-                                />
-
-                                <TextInput
-                                    style={styles.modalContentInputLarge}
-                                    placeholder="Inhalt..."
-                                    placeholderTextColor="#555"
-                                    value={newContent}
-                                    onChangeText={setNewContent}
-                                    multiline
-                                />
-                            </ScrollView>
-
-                            <View style={styles.modalButtonRow}>
-                                <TouchableOpacity
-                                    style={[styles.modalButton, { backgroundColor: "#333" }]}
-                                    onPress={() => setAddModalVisible(false)}
-                                >
-                                    <Text style={styles.modalButtonText}>Abbrechen</Text>
-                                </TouchableOpacity>
-
-                                <TouchableOpacity
-                                    style={[styles.modalButton, { backgroundColor: "#22c55e" }]}
-                                    onPress={addNote}
-                                >
-                                    <Text style={styles.modalButtonText}>Hinzufügen</Text>
-                                </TouchableOpacity>
-                            </View>
-                        </SafeAreaView>
-                    </KeyboardAvoidingView>
-                </View>
-            </Modal>
         </SafeAreaView>
     );
 }
@@ -295,49 +139,13 @@ const styles = StyleSheet.create({
         padding: 16,
         alignItems: "center",
     },
+
     heading: {
         fontSize: 26,
         color: "#22c55e",
         fontWeight: "bold",
     },
-    itemContainer: {
-        flex: 1,
-        justifyContent: "center",
-        marginBottom: 20,
-    },
-    arrowForward: {
-        position: "absolute",
-        right: 20,
-    },
-    list: {
-        marginTop: 20,
-        width: "100%",
-    },
-    border: {
-        width: "90%",
-        height: 60,
-        borderWidth: 2,
-        borderColor: "#0d4d4f",
-        backgroundColor: "#0d2d2f",
-        borderRadius: 30,
-        alignItems: "center",
-        justifyContent: "center",
-        marginHorizontal: 20,
-    },
-    itemText: {
-        fontSize: 20,
-        color: "#22c55e",
-        position: "absolute",
-        left: 20,
-    },
-    addFab: {
-        position: "absolute",
-        right: 20,
-    },
-    addFabText: {
-        fontSize: 22,
-        color: "#fff",
-    },
+
     headerLayout: {
         width: "100%",
         flexDirection: "row",
@@ -346,69 +154,58 @@ const styles = StyleSheet.create({
         marginTop: 20,
         marginBottom: 10,
     },
+
     backButton: {
-        alignItems: "center",
-        justifyContent: "center",
         position: "absolute",
         left: 20,
+        alignItems: "center",
+        justifyContent: "center",
     },
+
+    addFab: {
+        position: "absolute",
+        right: 20,
+    },
+
+    list: {
+        marginTop: 20,
+        width: "100%",
+    },
+
+    itemContainer: {
+        marginBottom: 20,
+        alignItems: "center",
+    },
+
+    border: {
+        width: "90%",
+        padding: 20,
+        borderWidth: 2,
+        borderColor: "#0d4d4f",
+        backgroundColor: "#0d2d2f",
+        borderRadius: 20,
+    },
+
+    itemHeading: {
+        fontSize: 20,
+        color: "#22c55e",
+        fontWeight: "bold",
+        marginBottom: 8,
+    },
+
+    itemContent: {
+        fontSize: 16,
+        color: "#a7f3d0",
+        lineHeight: 22,
+    },
+
     modalOverlay: {
         flex: 1,
         justifyContent: "center",
         alignItems: "center",
         backgroundColor: "rgba(0,0,0,0.6)",
     },
-    modalContainer: {
-        width: "90%",
-        height: "80%",
-        backgroundColor: "#0d1d1f",
-        borderRadius: 20,
-        padding: 20,
-        justifyContent: "flex-start",
-    },
-    modalHeading: {
-        fontSize: 26,
-        color: "#22c55e",
-        fontWeight: "bold",
-        textAlign: "left",
-        marginBottom: 5,
-        marginTop: 20,
-        marginHorizontal: 20,
-    },
-    modalScrollLarge: {
-        flex: 1,
-        marginTop: 5,
-        marginBottom: 10,
-        marginHorizontal: 10,
-    },
-    modalContentInputLarge: {
-        color: "#22c55e",
-        fontSize: 18,
-        textAlign: "left",
-        lineHeight: 26,
-        minHeight: 100,
-        paddingHorizontal: 10,
-    },
-    modalButtonRow: {
-        flexDirection: "row",
-        justifyContent: "space-between",
-        width: "100%",
-        marginTop: 10,
-        marginBottom: 20,
-        marginHorizontal: 20,
-    },
-    modalButton: {
-        flex: 1,
-        padding: 14,
-        borderRadius: 12,
-        alignItems: "center",
-        marginHorizontal: 5,
-    },
-    modalButtonText: {
-        color: "#fff",
-        fontSize: 16,
-        fontWeight: "600",
-    },
+
     deleteModal: {
         backgroundColor: "#0d1d1f",
         borderRadius: 15,
@@ -416,23 +213,27 @@ const styles = StyleSheet.create({
         width: "80%",
         alignItems: "center",
     },
+
     deleteTitle: {
         fontSize: 22,
         fontWeight: "bold",
         color: "#22c55e",
         marginBottom: 10,
     },
+
     deleteText: {
         fontSize: 18,
         color: "#fff",
         marginBottom: 20,
         textAlign: "center",
     },
+
     deleteButtons: {
         flexDirection: "row",
         justifyContent: "space-between",
         width: "100%",
     },
+
     cancelButton: {
         flex: 1,
         marginRight: 10,
@@ -441,6 +242,7 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         alignItems: "center",
     },
+
     deleteButton: {
         flex: 1,
         marginLeft: 10,
@@ -449,11 +251,13 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         alignItems: "center",
     },
+
     cancelText: {
         color: "#fff",
         fontSize: 16,
         fontWeight: "600",
     },
+
     deleteTextButton: {
         color: "#fff",
         fontSize: 16,
