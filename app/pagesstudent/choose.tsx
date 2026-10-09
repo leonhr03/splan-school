@@ -197,7 +197,7 @@ export default function ChooseGrade() {
                     style={styles.backButton}
                     onPress={() => router.replace("/student/home")}
                 >
-                    <Ionicons name="arrow-back" size={28} color="#22c55e"/>
+                    <Ionicons name="arrow-back" size={28} color="#ffffff"/>
                 </TouchableOpacity>
 
                 <Text style={styles.heading}>{subject}</Text>
@@ -442,7 +442,7 @@ export default function ChooseGrade() {
 }
 
 const styles = StyleSheet.create({
-    container: { flex: 1, backgroundColor: "#0d1d1f", padding: 16 },
+    container: { flex: 1, backgroundColor: "#000000", padding: 16 },
     backButton: {
         position: "absolute",
         left: 20,
@@ -452,22 +452,22 @@ const styles = StyleSheet.create({
     heading: {
         fontSize: 22,
         fontWeight: "bold",
-        color: "#22c55e",
+        color: "#ffffff",
         textAlign: "center",
     },
     gesHeading: { fontSize: 20, fontWeight: "bold", color: "#fff", marginVertical: 10, textAlign: "center" },
     editButton: { position: "absolute", right: 20, top: 20 },
     cardLayout: { flex: 1, marginBottom: 80 },
-    card: { flex: 1, marginVertical: 10, marginHorizontal: 20, padding: 16, borderRadius: 15, borderWidth: 2, borderColor: "#0d4d4f", backgroundColor: "#0d2d2f" },
+    card: { flex: 1, marginVertical: 10, marginHorizontal: 20, padding: 16, borderRadius: 15, borderWidth: 2, borderColor: "#2a2a2a", backgroundColor: "#141414" },
     text: { color: "#fff", fontSize: 20, marginBottom: 10, fontWeight: "bold" },
     listItem: { flexDirection: "row", justifyContent: "space-between", paddingVertical: 5 },
     listText: { color: "#fff", fontSize: 18 },
-    listGrade: { borderColor: "#0d4d4f", borderWidth: 2, height: 40, width: 40, borderRadius: 20, alignItems: "center", justifyContent: "center" },
+    listGrade: { borderColor: "#2a2a2a", borderWidth: 2, height: 40, width: 40, borderRadius: 20, alignItems: "center", justifyContent: "center" },
     addButton: { marginTop: 10, backgroundColor: "#22c55e", width: 40, height: 40, borderRadius: 20, alignItems: "center", justifyContent: "center", alignSelf: "flex-end" },
     addButtonText: { color: "#fff", fontSize: 24, fontWeight: "bold" },
     overlay: { flex: 1, backgroundColor: "rgba(0,0,0,0.5)", justifyContent: "center", alignItems: "center" },
-    deleteModal: { backgroundColor: "#0d1d1f", borderRadius: 15, padding: 20, width: "80%", alignItems: "center" },
-    deleteTitle: { fontSize: 22, fontWeight: "bold", color: "#22c55e", marginBottom: 10 },
+    deleteModal: { backgroundColor: "#000000", borderRadius: 15, padding: 20, width: "80%", alignItems: "center" },
+    deleteTitle: { fontSize: 22, fontWeight: "bold", color: "#ffffff", marginBottom: 10 },
     deleteText: { fontSize: 18, color: "#fff", marginBottom: 20, textAlign: "center" },
     deleteButtons: { flexDirection: "row", justifyContent: "space-between", width: "100%" },
     cancelButton: { flex: 1, marginRight: 10, backgroundColor: "#333", padding: 12, borderRadius: 10, alignItems: "center" },
@@ -475,11 +475,11 @@ const styles = StyleSheet.create({
     cancelText: { color: "#fff", fontSize: 16, fontWeight: "600" },
     deleteTextButton: { color: "#fff", fontSize: 16, fontWeight: "600" },
     buText: { fontSize: 22, color: "#fff" },
-    modalContainer: { backgroundColor: "#0d1d1f", borderRadius: 20, padding: 20, width: "90%" },
-    input: { marginTop: 15, backgroundColor: "#0d2d2f", borderColor: "#0d3d3f", borderWidth: 2, borderRadius: 10, padding: 10, color: "#fff" },
+    modalContainer: { backgroundColor: "#000000", borderRadius: 20, padding: 20, width: "90%" },
+    input: { marginTop: 15, backgroundColor: "#141414", borderColor: "#1c1c1c", borderWidth: 2, borderRadius: 10, padding: 10, color: "#fff" },
     saveButton: { marginTop: 20, backgroundColor: "#22c55e", padding: 12, borderRadius: 10, alignItems: "center" },
     saveButtonText: { color: "#fff", fontSize: 16, fontWeight: "bold" },
-    typeButton: { padding: 10,  width: 50, height: 50, borderRadius: 25, borderWidth: 2, borderColor: "#0d3d3f", backgroundColor: "#0d2d2f" ,alignItems: "center", justifyContent: "center" },
+    typeButton: { padding: 10,  width: 50, height: 50, borderRadius: 25, borderWidth: 2, borderColor: "#1c1c1c", backgroundColor: "#141414" ,alignItems: "center", justifyContent: "center" },
     typeButtonActive: { backgroundColor: "#22c55e" },
     typeButtonText: { color: "#fff", fontSize: 16, fontWeight: "bold" },
     header: {
@@ -495,7 +495,7 @@ const styles = StyleSheet.create({
 
     button: {
         width: "30%",
-        backgroundColor: "#0d1d1f",
+        backgroundColor: "#000000",
         borderRadius: 15,
         padding: 10,
         alignItems: "center",

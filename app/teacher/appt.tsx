@@ -120,9 +120,9 @@ export default function TeacherAppt() {
                     setCurrentMonth(month.dateString.slice(0, 7)); // "2025-01"
                 }}
                 theme={{
-                    calendarBackground: "#0d2d2f",
+                    calendarBackground: "#141414",
                     textSectionTitleColor: "#ffffff",
-                    monthTextColor: "#22e55c",
+                    monthTextColor: "#22c55e",
                     todayTextColor: "#22c55e",
                     selectedDayTextColor: "#fff",
                     selectedDayBackgroundColor: "#22c55e",
@@ -191,12 +191,12 @@ export default function TeacherAppt() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: "#0d1d1f",
+        backgroundColor: "#000000",
         padding: 16,
     },
     heading: {
         fontSize: 26,
-        color: "#22c55e",
+        color: "#ffffff",
         fontWeight: "bold",
         marginTop: 20,
         marginBottom: 10,
@@ -207,8 +207,8 @@ const styles = StyleSheet.create({
         alignSelf: "center",
         borderRadius: 15,
         borderWidth: 2,
-        borderColor: "#0d4d4f",
-        backgroundColor: "#0d2d2f",
+        borderColor: "#2a2a2a",
+        backgroundColor: "#141414",
         padding: 10,
     },
     list: {
@@ -220,12 +220,12 @@ const styles = StyleSheet.create({
         marginHorizontal: 20,
         padding: 10,
         borderWidth: 2,
-        borderColor: "#0d4d4f",
-        backgroundColor: "#0d2d2f",
+        borderColor: "#2a2a2a",
+        backgroundColor: "#141414",
         borderRadius: 15,
     },
     dateText: {
-        color: "#22c55e",
+        color: "#ffffff",
         fontWeight: "bold",
         marginBottom: 5,
     },
@@ -241,20 +241,20 @@ const styles = StyleSheet.create({
     },
     modalContainer: {
         width: "85%",
-        backgroundColor: "#0d1d1f",
+        backgroundColor: "#000000",
         borderRadius: 10,
         padding: 20,
     },
     modalHeading: {
-        color: "#22c55e",
+        color: "#ffffff",
         fontSize: 18,
         fontWeight: "bold",
         marginBottom: 15,
     },
     input: {
         borderWidth: 1,
-        borderColor: "#0d4d4f",
-        backgroundColor: "#0d2d2f",
+        borderColor: "#2a2a2a",
+        backgroundColor: "#141414",
         borderRadius: 8,
         padding: 10,
         color: "#ffffff",

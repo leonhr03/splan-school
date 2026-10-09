@@ -122,11 +122,11 @@ export default TimePickerModal;
 
 const styles = StyleSheet.create({
     overlay: { flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: "rgba(0,0,0,0.3)" },
-    container: { backgroundColor: "#0d1d1f", width: "80%", borderRadius: 20, padding: 20, alignItems: "center" },
-    heading: { color: "#22c55e", fontSize: 20, marginBottom: 10 },
+    container: { backgroundColor: "#000000", width: "80%", borderRadius: 20, padding: 20, alignItems: "center" },
+    heading: { color: "#ffffff", fontSize: 20, marginBottom: 10 },
     pickersRow: { flexDirection: "row", justifyContent: "space-between", width: "100%" },
     picker: { flex: 1, height: ITEM_HEIGHT * 3, maxHeight: ITEM_HEIGHT * 3 },
-    timeText: { color: "#22c55e", fontSize: 20, textAlign: "center" },
+    timeText: { color: "#ffffff", fontSize: 20, textAlign: "center" },
     selected: { fontWeight: "bold", fontSize: 24, color: "#fff" },
     button: { marginTop: 20, backgroundColor: "#22c55e", padding: 10, borderRadius: 15, width: "80%", alignItems: "center" },
     buttonCancel: { marginTop: 10, backgroundColor: "#555", padding: 10, borderRadius: 15, width: "80%", alignItems: "center" },

@@ -280,7 +280,7 @@ export default function ExamPage() {
                         })
                     }
                 >
-                    <Ionicons name="arrow-back" size={30} color="#22c55e" />
+                    <Ionicons name="arrow-back" size={30} color="#ffffff" />
                 </TouchableOpacity>
                 <Text style={styles.heading}>{studentData.student}</Text>
 
@@ -288,7 +288,7 @@ export default function ExamPage() {
                     style={{ position: "absolute", right: 16 }}
                     onPress={() => setWeightsModalVisible(true)}
                 >
-                    <Ionicons name="options" size={26} color="#22c55e" />
+                    <Ionicons name="options" size={26} color="#d4d4d4" />
                 </TouchableOpacity>
             </View>
 
@@ -369,14 +369,14 @@ export default function ExamPage() {
                                 value={newTitle}
                                 onChangeText={setNewTitle}
                                 placeholder={"Titel"}
-                                placeholderTextColor={"#22c55e"}
+                                placeholderTextColor={"#a3a3a3"}
                             />
                             <TextInput
                                 style={styles.modalTextInput}
                                 value={newGrade}
                                 onChangeText={setNewGrade}
                                 placeholder={"Note"}
-                                placeholderTextColor={"#22c55e"}
+                                placeholderTextColor={"#a3a3a3"}
                                 keyboardType={"numeric"}
                             />
                             <TouchableOpacity style={styles.modalButton} onPress={() => addItem()}>
@@ -477,7 +477,7 @@ export default function ExamPage() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: "#0d1d1f",
+        backgroundColor: "#000000",
         padding: 16,
         alignItems: "center",
     },
@@ -500,7 +500,7 @@ const styles = StyleSheet.create({
 
     heading: {
         fontSize: 26,
-        color: "#22c55e",
+        color: "#ffffff",
         fontWeight: "bold",
     },
 
@@ -526,8 +526,8 @@ const styles = StyleSheet.create({
         width: screenWidth * 0.85,
         height: screenHeight * 0.6,
         borderWidth: 2,
-        borderColor: "#0d4d4f",
-        backgroundColor: "#0d2d2f",
+        borderColor: "#2a2a2a",
+        backgroundColor: "#141414",
         borderRadius: 15,
         marginTop: 50,
         padding: 16,
@@ -568,7 +568,7 @@ const styles = StyleSheet.create({
     modalContainer: {
         width: "95%",
         alignItems: "center",
-        backgroundColor: "#0d1d1f",
+        backgroundColor: "#000000",
         borderRadius: 15,
         padding: 16,
     },
@@ -576,10 +576,10 @@ const styles = StyleSheet.create({
     modalTextInput: {
         fontSize: 20,
         padding: 16,
-        color: "#22c55e",
+        color: "#ffffff",
         borderWidth: 2,
-        borderColor: "#0d4d4f",
-        backgroundColor: "#0d2d2f",
+        borderColor: "#2a2a2a",
+        backgroundColor: "#141414",
         borderRadius: 15,
         width: "90%",
         marginTop: 20,
@@ -604,8 +604,8 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         padding: 10,
         marginTop: 10,
-        backgroundColor: "#0d3d3f",
-        borderColor: "#0d5d5f",
+        backgroundColor: "#1c1c1c",
+        borderColor: "#333333",
         borderWidth: 2,
         borderRadius: 15,
         alignSelf: "center",
@@ -615,7 +615,7 @@ const styles = StyleSheet.create({
         width: "75%",
         height: 60,
         borderWidth: 2,
-        borderColor: "#0d4d4f",
+        borderColor: "#2a2a2a",
         borderRadius: 30,
         marginRight: 5,
         paddingLeft: 15,
@@ -627,7 +627,7 @@ const styles = StyleSheet.create({
         height: 60,
         width: 60,
         borderWidth: 2,
-        borderColor: "#0d4d4f",
+        borderColor: "#2a2a2a",
         borderRadius: 30,
         alignItems: "center",
         justifyContent: "center",
@@ -639,14 +639,14 @@ const styles = StyleSheet.create({
     },
 
     footerText: {
-        color: "#22c55e",
+        color: "#ffffff",
         fontSize: 40,
         alignSelf: "center",
     },
 
     // delete modal
     deleteModal: {
-        backgroundColor: "#0d1d1f",
+        backgroundColor: "#000000",
         borderRadius: 15,
         padding: 20,
         width: "80%",
@@ -656,7 +656,7 @@ const styles = StyleSheet.create({
     deleteTitle: {
         fontSize: 22,
         fontWeight: "bold",
-        color: "#22c55e",
+        color: "#ffffff",
         marginBottom: 10,
     },
 
@@ -722,8 +722,8 @@ const styles = StyleSheet.create({
     },
     weightButton: {
         borderWidth: 1,
-        borderColor: "#0d4d4f",
-        backgroundColor: "#0d2d2f",
+        borderColor: "#2a2a2a",
+        backgroundColor: "#141414",
         paddingHorizontal: 12,
         paddingVertical: 6,
         borderRadius: "50%",

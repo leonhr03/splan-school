@@ -140,7 +140,7 @@ export default function Dates() {
             <View style={styles.header}>
                 <Text style={styles.heading}>Termine</Text>
                 <TouchableOpacity style={styles.addButtonTop} onPress={() => setAddAlert(true)}>
-                    <Ionicons name="add" size={30} color="#22e55c" />
+                    <Ionicons name="add" size={30} color="#22c55e" />
                 </TouchableOpacity>
             </View>
 
@@ -249,11 +249,11 @@ export default function Dates() {
 }
 
 const styles = StyleSheet.create({
-    container: { flex: 1, padding: 16, backgroundColor: "#0d1d1f" },
+    container: { flex: 1, padding: 16, backgroundColor: "#000000" },
     heading: {
         fontSize: 26,
         fontWeight: "bold",
-        color: "#22c55e",
+        color: "#ffffff",
         alignSelf: "center",
     },
 
@@ -263,8 +263,8 @@ const styles = StyleSheet.create({
         padding: 8,
     },
     card: {
-        backgroundColor: "#0d2d2f",
-        borderColor: "#0d4d4f",
+        backgroundColor: "#141414",
+        borderColor: "#2a2a2a",
         borderWidth: 2,
         padding: 18,
         marginVertical: 8,
@@ -277,8 +277,8 @@ const styles = StyleSheet.create({
         justifyContent: "space-between",
         marginBottom: 8,
     },
-    subject: { fontSize: 18, fontWeight: "bold", color: "#22e55c" },
-    date: { fontSize: 14, color: "#0d7d7f" },
+    subject: { fontSize: 18, fontWeight: "bold", color: "#ffffff" },
+    date: { fontSize: 14, color: "#a3a3a3" },
     content: { fontSize: 16, color: "#fff" },
     addText: { fontSize: 26, color: "#fff" },
 
@@ -289,7 +289,7 @@ const styles = StyleSheet.create({
         alignItems: "center",
     },
     sheetsContainer: {
-        backgroundColor: "#0d1d1f",
+        backgroundColor: "#000000",
         borderRadius: 15,
         width: "90%",
         alignItems: "center",
@@ -297,8 +297,8 @@ const styles = StyleSheet.create({
     },
     textInput: {
         marginTop: 15,
-        backgroundColor: "#0d2d2f",
-        borderColor: "#0d3d3f",
+        backgroundColor: "#141414",
+        borderColor: "#1c1c1c",
         borderWidth: 2,
         borderRadius: 15,
         padding: 14,
@@ -316,8 +316,8 @@ const styles = StyleSheet.create({
 
     dateInput: {
         marginTop: 15,
-        backgroundColor: "#0d2d2f",
-        borderColor: "#0d3d3f",
+        backgroundColor: "#141414",
+        borderColor: "#1c1c1c",
         borderWidth: 2,
         borderRadius: 15,
         padding: 14,
@@ -340,7 +340,7 @@ const styles = StyleSheet.create({
         alignItems: "center",
     },
     deleteModal: {
-        backgroundColor: "#0d1d1f",
+        backgroundColor: "#000000",
         borderRadius: 20,
         padding: 25,
         width: "80%",
@@ -349,7 +349,7 @@ const styles = StyleSheet.create({
     deleteTitle: {
         fontSize: 20,
         fontWeight: "bold",
-        color: "#22c55e",
+        color: "#ffffff",
         marginBottom: 15,
     },
     deleteText: { fontSize: 16, color: "#fff", textAlign: "center", marginBottom: 20 },

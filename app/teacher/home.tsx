@@ -163,7 +163,7 @@ export default function TeacherHome() {
                                 value={newClass}
                                 onChangeText={setNewClass}
                                 placeholder={"Klasse"}
-                                placeholderTextColor={"#22c55e"}/>
+                                placeholderTextColor={"#a3a3a3"}/>
 
                             <TouchableOpacity style={styles.addAlertButton} onPress={addClass}>
                                 <Text style={styles.addAlertButtonText}>Hinzufügen</Text>
@@ -230,7 +230,7 @@ export default function TeacherHome() {
                                     value={newSubject}
                                     onChangeText={setNewSubject}
                                     placeholder={"Fach"}
-                                    placeholderTextColor={"#22c55e"}/>
+                                    placeholderTextColor={"#a3a3a3"}/>
 
                                 <TouchableOpacity style={styles.addAlertButton} onPress={addSubject}>
                                     <Text style={styles.addAlertButtonText}>Hinzufügen</Text>
@@ -273,7 +273,7 @@ export default function TeacherHome() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: "#0d1d1f",
+        backgroundColor: "#000000",
         alignItems: "center",
         padding: 16,
     },
@@ -290,7 +290,7 @@ const styles = StyleSheet.create({
 
     heading: {
         fontSize: 26,
-        color: "#22c55e",
+        color: "#ffffff",
         fontWeight: "bold",
     },
 
@@ -307,9 +307,9 @@ const styles = StyleSheet.create({
         alignItems: "center",
         alignSelf: "center",
         marginBottom: 20,
-        backgroundColor: "#0d2d2f",
+        backgroundColor: "#141414",
         borderWidth: 2,
-        borderColor: "#0d4d4f",
+        borderColor: "#2a2a2a",
         width: "90%",
         borderRadius: 15,
         padding: 10
@@ -319,8 +319,8 @@ const styles = StyleSheet.create({
         width: "90%",
         height: 60,
         borderWidth: 2,
-        borderColor: "#0d4d4f",
-        backgroundColor: "#0d3d3f",
+        borderColor: "#2a2a2a",
+        backgroundColor: "#1c1c1c",
         borderRadius: 30,
         alignItems: "center",
         justifyContent: "center",
@@ -329,7 +329,7 @@ const styles = StyleSheet.create({
 
     text: {
         fontSize: 25,
-        color: "#22c55e",
+        color: "#ffffff",
     },
 
     classList: {
@@ -361,21 +361,21 @@ const styles = StyleSheet.create({
     addAlertContainer: {
         width: "95%",
         alignItems: "center",
-        backgroundColor: "#0d1d1f",
+        backgroundColor: "#000000",
         borderRadius: 15
     },
 
     addAlertHeading: {
         fontSize: 25,
-        color: "#22e55c",
+        color: "#ffffff",
         marginTop: 20,
         marginBottom: 20,
         fontWeight: "bold",
     },
 
     addAlertTextInput: {
-        backgroundColor: "#0d2d2f",
-        borderColor: "#0d4d4f",
+        backgroundColor: "#141414",
+        borderColor: "#2a2a2a",
         borderRadius: 15,
         borderWidth: 2,
         padding: 14,
@@ -405,7 +405,7 @@ const styles = StyleSheet.create({
         justifyContent: "flex-start",
         alignItems: "center",
         flexDirection: "column",
-        backgroundColor: "#0d1d1f",
+        backgroundColor: "#000000",
         borderTopLeftRadius: 15,
         borderTopRightRadius: 15,
         padding: 16,
@@ -413,8 +413,8 @@ const styles = StyleSheet.create({
 
     listCard: {
         borderWidth: 2,
-        borderColor: "#0d4d4f",
-        backgroundColor: "#0d2d2f",
+        borderColor: "#2a2a2a",
+        backgroundColor: "#141414",
         borderRadius: 15,
         padding: 15,
         width: "95%",

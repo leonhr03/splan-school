@@ -143,7 +143,7 @@ export default function HomeStudent() {
                 </TouchableOpacity>
                 <Text style={styles.heading}>Splan</Text>
                 <TouchableOpacity style={styles.searchButton} onPress={() => setSearchAlert(true)}>
-                    <Ionicons name="search" size={26} color="#22c55e" />
+                    <Ionicons name="search" size={26} color="#d4d4d4" />
                 </TouchableOpacity>
             </View>
             <Text style={styles.text}>{"Ø "} {overallAverage}</Text>
@@ -177,7 +177,7 @@ export default function HomeStudent() {
                             onChangeText={setNewSubject}
                             style={styles.textInput}
                             placeholder="Subject"
-                            placeholderTextColor="#0d5d5f"
+                            placeholderTextColor="#333333"
                         />
                         <TouchableOpacity
                             style={styles.addButton}
@@ -227,7 +227,7 @@ export default function HomeStudent() {
                             value={searchSubjects}
                             onChangeText={setSearchSubjects}
                             placeholder={"Search..."}
-                            placeholderTextColor={"#0d4d4f"}
+                            placeholderTextColor={"#2a2a2a"}
                         />
 
                         <FlatList
@@ -245,7 +245,7 @@ export default function HomeStudent() {
 }
 
 const styles = StyleSheet.create({
-    container: { flex: 1, padding: 16, backgroundColor: "#0d1d1f", alignItems: "center" },
+    container: { flex: 1, padding: 16, backgroundColor: "#000000", alignItems: "center" },
     searchButton: {
         position: "absolute",
         right: 10,
@@ -261,7 +261,7 @@ const styles = StyleSheet.create({
     heading: {
         fontSize: 26,
         fontWeight: "bold",
-        color: "#22c55e",
+        color: "#ffffff",
         textAlign: "center",
     },
     buText: { fontSize: 22, color: "#fff" },
@@ -278,7 +278,7 @@ const styles = StyleSheet.create({
     text: {
         marginVertical: 20,
         fontSize: 25,
-        color: "#e5e5e5",
+        color: "#d4d4d4",
         textAlign: "center",
         lineHeight: 24,
     },
@@ -291,15 +291,15 @@ const styles = StyleSheet.create({
         marginVertical: 10,
         paddingHorizontal: 16,
         padding: 10,
-        backgroundColor: "#0d2d2f",
-        borderColor: "#0d5d5f",
+        backgroundColor: "#141414",
+        borderColor: "#333333",
         borderRadius: 15,
         borderWidth: 2,
     },
     itemLeft: {
         flex: 1,
-        backgroundColor: "#0d3d3f",
-        borderColor: "#0d4d4f",
+        backgroundColor: "#1c1c1c",
+        borderColor: "#2a2a2a",
         borderRadius: 25,
         borderWidth: 2,
         height: 50,
@@ -308,12 +308,12 @@ const styles = StyleSheet.create({
         justifyContent: "center",
     },
     itemRight: {
-        backgroundColor: "#0d3d3f",
+        backgroundColor: "#1c1c1c",
         height: 50,
         width: 50,
         borderRadius: 25,
         borderWidth: 2,
-        borderColor: "#0d4d4f",
+        borderColor: "#2a2a2a",
         marginLeft: 10,
         alignItems: "center",
         justifyContent: "center",
@@ -339,7 +339,7 @@ const styles = StyleSheet.create({
     },
 
     sheetsContainer: {
-        backgroundColor: "#012d2f",
+        backgroundColor: "#141414",
         borderRadius: 20,
         width: "90%",
         alignItems: "center",
@@ -347,8 +347,8 @@ const styles = StyleSheet.create({
 
     textInput: {
         marginTop: 50,
-        backgroundColor: "#0d3d3f",
-        borderColor: "#0d5d5f",
+        backgroundColor: "#1c1c1c",
+        borderColor: "#333333",
         borderRadius: 15,
         borderWidth: 2,
         padding: 14,
@@ -380,7 +380,7 @@ const styles = StyleSheet.create({
         width: "80%",
         alignItems: "center",
     },
-    deleteTitle: { fontSize: 22, fontWeight: "bold", color: "#22c55e", marginBottom: 10 },
+    deleteTitle: { fontSize: 22, fontWeight: "bold", color: "#ffffff", marginBottom: 10 },
     deleteText: { fontSize: 18, color: "#fff", marginBottom: 20, textAlign: "center" },
     deleteButtons: { flexDirection: "row", justifyContent: "space-between", width: "100%" },
     cancelButton: {
@@ -414,8 +414,8 @@ const styles = StyleSheet.create({
         maxWidth: "90%",
         padding: 10,
         borderRadius: 25,
-        backgroundColor: "#0d3d3f",
-        borderColor: "#0d4d4f",
+        backgroundColor: "#1c1c1c",
+        borderColor: "#2a2a2a",
         borderWidth: 2,
         color: "#fff",
         marginBottom: 10,

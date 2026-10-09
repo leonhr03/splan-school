@@ -66,7 +66,7 @@ export default function Index() {
                         <Progress.Bar
                             progress={0.25}
                             color={"#22c55e"}
-                            unfilledColor={"#0d1d1f"}
+                            unfilledColor={"#000000"}
                             width={width.width * 0.8}
                             height={10}
                             borderRadius={15}
@@ -92,7 +92,7 @@ export default function Index() {
                         <Progress.Bar
                             progress={0.5}
                             color={"#22c55e"}
-                            unfilledColor={"#0d1d1f"}
+                            unfilledColor={"#000000"}
                             width={width.width * 0.8}
                             height={10}
                             borderRadius={15}
@@ -117,7 +117,7 @@ export default function Index() {
                         <Progress.Bar
                             progress={0.75}
                             color={"#22c55e"}
-                            unfilledColor={"#0d1d1f"}
+                            unfilledColor={"#000000"}
                             width={width.width * 0.8}
                             height={10}
                             borderRadius={15}
@@ -141,7 +141,7 @@ export default function Index() {
                         <Progress.Bar
                             progress={1}
                             color={"#22c55e"}
-                            unfilledColor={"#0d1d1f"}
+                            unfilledColor={"#000000"}
                             width={width.width * 0.8}
                             height={10}
                             borderRadius={15}
@@ -167,12 +167,12 @@ export default function Index() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: "#0d1d1f" ,
+        backgroundColor: "#000000" ,
         padding: 16,
     },
     page: {
         flex: 1,
-        backgroundColor: "#0d1d1f",
+        backgroundColor: "#000000",
         justifyContent: "center",
         alignItems: "center",
         padding: 24,
@@ -180,14 +180,14 @@ const styles = StyleSheet.create({
     heading: {
         fontSize: 35,
         fontWeight: "bold",
-        color: "#22c55e",
+        color: "#ffffff",
         marginBottom: 16,
         textAlign: "center",
     },
     text: {
         marginTop: 10,
         fontSize: 25,
-        color: "#e5e5e5",
+        color: "#d4d4d4",
         textAlign: "center",
         lineHeight: 24,
         marginHorizontal: 10,

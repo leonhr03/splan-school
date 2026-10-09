@@ -129,7 +129,7 @@ export default function TimeTable() {
             </View>
             <View style={styles.itemButtons}>
                 <TouchableOpacity onPress={() => startEditItem(index)}>
-                    <Ionicons name="pencil" size={20} color="#22c55e" />
+                    <Ionicons name="pencil" size={20} color="#d4d4d4" />
                 </TouchableOpacity>
             </View>
         </TouchableOpacity>
@@ -147,7 +147,7 @@ export default function TimeTable() {
             <View style={styles.header}>
                 <Text style={styles.heading}>Stundenplan</Text>
                 <TouchableOpacity style={styles.edit} onPress={() => setEditModal(true)}>
-                    <Ionicons name={"pencil"} color={"#22c55e"} size={26} />
+                    <Ionicons name={"pencil"} color={"#d4d4d4"} size={26} />
                 </TouchableOpacity>
             </View>
 
@@ -201,12 +201,12 @@ export default function TimeTable() {
                             <Text style={[styles.heading, {marginTop: 20}]}>Neue Stunde</Text>
                             <View style={styles.timeRow}>
                                 <TouchableOpacity style={styles.textInputRow} onPress={() => setShowAddStartPicker(true)}>
-                                    <Text style={{ color: "#22c55e", textAlign: "center" }}>
+                                    <Text style={{ color: "#d4d4d4", textAlign: "center" }}>
                                         {newStartTime || "Startzeit wählen"}
                                     </Text>
                                 </TouchableOpacity>
                                 <TouchableOpacity style={styles.textInputRow} onPress={() => setShowAddEndPicker(true)}>
-                                    <Text style={{ color: "#22c55e", textAlign: "center" }}>
+                                    <Text style={{ color: "#d4d4d4", textAlign: "center" }}>
                                         {newEndTime || "Endzeit wählen"}
                                     </Text>
                                 </TouchableOpacity>
@@ -216,7 +216,7 @@ export default function TimeTable() {
                                 value={newSubject}
                                 onChangeText={setNewSubject}
                                 placeholder="Fach"
-                                placeholderTextColor="#22c55e"
+                                placeholderTextColor="#a3a3a3"
                             />
                             <TouchableOpacity style={styles.addButton} onPress={addSubject}>
                                 <Text style={styles.buttonText}>Hinzufügen</Text>
@@ -247,12 +247,12 @@ export default function TimeTable() {
                             <Text style={[styles.heading, {marginTop: 20}]}>Stunde bearbeiten</Text>
                             <View style={styles.timeRow}>
                                 <TouchableOpacity style={styles.textInputRow} onPress={() => setShowEditStartPicker(true)}>
-                                    <Text style={{ color: "#22c55e", textAlign: "center" }}>
+                                    <Text style={{ color: "#d4d4d4", textAlign: "center" }}>
                                         {newStartTime || "Startzeit wählen"}
                                     </Text>
                                 </TouchableOpacity>
                                 <TouchableOpacity style={styles.textInputRow} onPress={() => setShowEditEndPicker(true)}>
-                                    <Text style={{ color: "#22c55e", textAlign: "center" }}>
+                                    <Text style={{ color: "#d4d4d4", textAlign: "center" }}>
                                         {newEndTime || "Endzeit wählen"}
                                     </Text>
                                 </TouchableOpacity>
@@ -262,7 +262,7 @@ export default function TimeTable() {
                                 value={newSubject}
                                 onChangeText={setNewSubject}
                                 placeholder="Fach"
-                                placeholderTextColor="#22c55e"
+                                placeholderTextColor="#a3a3a3"
                             />
                             <TouchableOpacity style={styles.addButton} onPress={saveEditedItem}>
                                 <Text style={styles.buttonText}>Speichern</Text>
@@ -293,7 +293,7 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         padding: 16,
-        backgroundColor: "#0d1d1f",
+        backgroundColor: "#000000",
         alignItems: "center",
     },
 
@@ -307,7 +307,7 @@ const styles = StyleSheet.create({
     heading: {
         fontSize: 26,
         fontWeight: "bold",
-        color: "#22c55e",
+        color: "#ffffff",
         textAlign: "center",
     },
 
@@ -331,15 +331,15 @@ const styles = StyleSheet.create({
         marginBottom: 20,
         width: "95%",
         borderWidth: 2,
-        borderColor: "#0d4d4f",
-        backgroundColor: "#0d2d2f",
+        borderColor: "#2a2a2a",
+        backgroundColor: "#141414",
         borderRadius: 20,
         padding: 10,
     },
 
     dayText: {
         alignSelf: "center",
-        color: "#22c55e",
+        color: "#ffffff",
         fontSize: 23,
     },
 
@@ -379,8 +379,8 @@ const styles = StyleSheet.create({
         height: 60,
         width: "95%",
         marginVertical: 10,
-        borderColor: "#0d4d4f",
-        backgroundColor: "#0d2d2f",
+        borderColor: "#2a2a2a",
+        backgroundColor: "#141414",
         borderRadius: 30,
         padding: 10,
 
@@ -409,7 +409,7 @@ const styles = StyleSheet.create({
     itemText: {
         alignSelf: "flex-start",
         fontSize: 20,
-        color: "#22c55e",
+        color: "#ffffff",
         marginLeft: 30,
     },
 
@@ -425,8 +425,8 @@ const styles = StyleSheet.create({
         alignItems: "center",
         justifyContent: "flex-end",
         width: "100%",
-        backgroundColor: "#0d1d1f",
-        borderColor: "#0d3d3f",
+        backgroundColor: "#000000",
+        borderColor: "#1c1c1c",
         padding: 16,
         borderTopLeftRadius: 20,
         borderTopRightRadius: 20,
@@ -434,8 +434,8 @@ const styles = StyleSheet.create({
 
     listCard: {
         borderWidth: 2,
-        borderColor: "#0d4d4f",
-        backgroundColor: "#0d2d2f",
+        borderColor: "#2a2a2a",
+        backgroundColor: "#141414",
         borderRadius: 15,
         padding: 10,
         width: "95%",
@@ -473,8 +473,8 @@ const styles = StyleSheet.create({
         alignItems: "center",
         justifyContent: "center",
         width: "95%",
-        backgroundColor: "#0d1d1f",
-        borderColor: "#0d3d3f",
+        backgroundColor: "#000000",
+        borderColor: "#1c1c1c",
         padding: 16,
         borderRadius: 20,
     },
@@ -487,11 +487,11 @@ const styles = StyleSheet.create({
 
     textInputRow: {
         padding: 10,
-        color: "#22c55e",
+        color: "#ffffff",
         borderRadius: 20,
         borderWidth: 2,
-        borderColor: "#0d4d4f",
-        backgroundColor: "#0d2d2f",
+        borderColor: "#2a2a2a",
+        backgroundColor: "#141414",
         width: "45%",
         marginHorizontal: 5,
         marginTop: 20,
@@ -499,11 +499,11 @@ const styles = StyleSheet.create({
 
     textInput: {
         padding: 10,
-        color: "#22c55e",
+        color: "#ffffff",
         borderRadius: 20,
         borderWidth: 2,
-        borderColor: "#0d4d4f",
-        backgroundColor: "#0d2d2f",
+        borderColor: "#2a2a2a",
+        backgroundColor: "#141414",
         width: "95%",
         marginHorizontal: 5,
         marginTop: 20,
@@ -533,7 +533,7 @@ const styles = StyleSheet.create({
     pauseLine: {
         width: "90%",
         height: 2,
-        backgroundColor: "#22c55e",
+        backgroundColor: "#2a2a2a",
         borderRadius: 1,
     },
 

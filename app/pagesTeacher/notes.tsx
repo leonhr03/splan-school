@@ -92,11 +92,11 @@ export default function NotesPage() {
                         })
                     }
                 >
-                    <Ionicons name="arrow-back" size={30} color="#22c55e" />
+                    <Ionicons name="arrow-back" size={30} color="#ffffff" />
                 </TouchableOpacity>
                 <Text style={styles.heading}>{studentData.student}</Text>
                 <TouchableOpacity style={styles.addFab} onPress={() => router.replace({pathname: "/pagesTeacher/noteDetail", params: { subject: studentData.subject, student: studentData.student } })}>
-                    <Ionicons name={"add"} size={35} color={"#22e55c"}/>
+                    <Ionicons name={"add"} size={35} color={"#22c55e"}/>
                 </TouchableOpacity>
             </View>
 
@@ -135,14 +135,14 @@ export default function NotesPage() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: "#0d1d1f",
+        backgroundColor: "#000000",
         padding: 16,
         alignItems: "center",
     },
 
     heading: {
         fontSize: 26,
-        color: "#22c55e",
+        color: "#ffffff",
         fontWeight: "bold",
     },
 
@@ -181,21 +181,21 @@ const styles = StyleSheet.create({
         width: "90%",
         padding: 20,
         borderWidth: 2,
-        borderColor: "#0d4d4f",
-        backgroundColor: "#0d2d2f",
+        borderColor: "#2a2a2a",
+        backgroundColor: "#141414",
         borderRadius: 20,
     },
 
     itemHeading: {
         fontSize: 20,
-        color: "#22c55e",
+        color: "#ffffff",
         fontWeight: "bold",
         marginBottom: 8,
     },
 
     itemContent: {
         fontSize: 16,
-        color: "#a7f3d0",
+        color: "#a3a3a3",
         lineHeight: 22,
     },
 
@@ -207,7 +207,7 @@ const styles = StyleSheet.create({
     },
 
     deleteModal: {
-        backgroundColor: "#0d1d1f",
+        backgroundColor: "#000000",
         borderRadius: 15,
         padding: 20,
         width: "80%",
@@ -217,7 +217,7 @@ const styles = StyleSheet.create({
     deleteTitle: {
         fontSize: 22,
         fontWeight: "bold",
-        color: "#22c55e",
+        color: "#ffffff",
         marginBottom: 10,
     },
 

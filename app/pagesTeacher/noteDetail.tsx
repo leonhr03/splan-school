@@ -68,7 +68,7 @@ export default function NoteDetail() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: "#0d1d1f",
+        backgroundColor: "#000000",
         padding: 16,
         alignItems: "center",
     },
@@ -89,7 +89,7 @@ const styles = StyleSheet.create({
         width: "90%",
         borderWidth: 2,
         padding:10,
-        borderColor: "#0d3d3f",
+        borderColor: "#1c1c1c",
         borderRadius: 15,
     },
 
@@ -100,7 +100,7 @@ const styles = StyleSheet.create({
         width: "90%",
         borderWidth: 2,
         padding:10,
-        borderColor: "#0d3d3f",
+        borderColor: "#1c1c1c",
         borderRadius: 15,
     },
 
@@ -117,7 +117,7 @@ const styles = StyleSheet.create({
         flex: 1,
         alignItems: "center",
         justifyContent: "center",
-        backgroundColor: "#22e55c",
+        backgroundColor: "#22c55e",
         padding: 16,
         borderRadius: 15,
     },

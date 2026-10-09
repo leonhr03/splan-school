@@ -8,11 +8,11 @@ export default function TeacherLayout() {
             screenOptions={{
                 headerShown: false,
                 tabBarActiveTintColor: '#22c55e',
-                tabBarInactiveTintColor: '#22c55e',
+                tabBarInactiveTintColor: '#8a8a8a',
                 tabBarStyle: {
                     borderRadius: 30,
                     height: 60,
-                    backgroundColor: '#0d2d2f',
+                    backgroundColor: '#141414',
                     marginBottom: 25,
                     marginLeft: 10,
                     marginRight: 10,
@@ -20,11 +20,11 @@ export default function TeacherLayout() {
                     position: 'absolute',
                     borderWidth: 1,
                     borderTopWidth: 1,
-                    borderColor: '#0d4d4f',
+                    borderColor: '#2a2a2a',
                     justifyContent: 'center',
                 },
                 tabBarLabelStyle: {
-                    color: '#22c55e',
+                    fontWeight: '600',
                 },
             }}>
             <Tabs.Screen name="home"
